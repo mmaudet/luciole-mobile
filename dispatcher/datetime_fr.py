@@ -1,5 +1,7 @@
 """Resolve a small, closed set of French relative time expressions.
-The set is intentionally bounded; the GBNF grammar restricts `quand` to exactly these forms."""
+The set is intentionally bounded. The system prompt instructs the model to emit only these
+forms for `quand`; the GBNF grammar itself allows any string, so this resolver is the
+enforcement point and raises ValueError on anything outside the set."""
 import re
 from datetime import datetime, timedelta
 

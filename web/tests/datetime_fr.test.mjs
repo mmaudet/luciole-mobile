@@ -17,6 +17,15 @@ test('weekday next occurrence', () => {
 test('dans minutes', () => {
   assert.equal(resolveDatetimeFr('dans 20 minutes', NOW).getTime(), new Date(2026, 5, 25, 9, 20).getTime());
 });
+test('dans heures', () => {
+  assert.equal(resolveDatetimeFr('dans 2 heures', NOW).getTime(), new Date(2026, 5, 25, 11, 0).getTime());
+});
+test('apres-demain', () => {
+  assert.equal(resolveDatetimeFr('après-demain 08:00', NOW).getTime(), new Date(2026, 5, 27, 8, 0).getTime());
+});
+test("aujourd'hui prefix", () => {
+  assert.equal(resolveDatetimeFr("aujourd'hui 14:00", NOW).getTime(), new Date(2026, 5, 25, 14, 0).getTime());
+});
 test('unknown throws', () => {
   assert.throws(() => resolveDatetimeFr('la semaine prochaine', NOW));
 });

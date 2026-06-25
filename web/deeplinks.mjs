@@ -14,17 +14,18 @@ export function buildDeepLink(action, platform, now) {
       return { kind: 'unsupported', label: "Alarme : démo sur le Pixel uniquement (non disponible côté web)" };
 
     case 'appel':
-      return { kind: 'href', href: `tel:${action.destinataire || ''}`, label: 'Ouvrir le numéroteur' };
+      // strip spaces/separators so the tel: URI is well-formed
+      return { kind: 'href', href: `tel:${(action.destinataire || '').replace(/\s/g, '')}`, label: 'Ouvrir le numéroteur' };
 
     case 'message':
       if (action.canal === 'email') {
         return { kind: 'href',
-          href: `mailto:?subject=${enc(action.objet || '')}&body=${enc(action.corps)}`,
+          href: `mailto:?subject=${enc(action.objet || '')}&body=${enc(action.corps || '')}`,
           label: 'Rédiger l’email' };
       }
       // SMS body param: iOS historically uses `&body=`, Android `?body=`.
       return { kind: 'href',
-        href: platform === 'ios' ? `sms:&body=${enc(action.corps)}` : `sms:?body=${enc(action.corps)}`,
+        href: platform === 'ios' ? `sms:&body=${enc(action.corps || '')}` : `sms:?body=${enc(action.corps || '')}`,
         label: 'Rédiger le SMS' };
 
     case 'itineraire':
@@ -40,11 +41,13 @@ export function buildDeepLink(action, platform, now) {
       const text = [
         'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//luciole-mobile//FR',
         'BEGIN:VEVENT',
+        `UID:${icsStamp(start)}-${enc(action.titre)}@luciole-mobile`,
+        `DTSTAMP:${icsStamp(now)}`,
         `DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`,
         `SUMMARY:${action.titre}`,
         action.lieu ? `LOCATION:${action.lieu}` : '',
         'END:VEVENT', 'END:VCALENDAR',
-      ].filter(Boolean).join('\r\n');
+      ].filter(Boolean).join('\r\n') + '\r\n';   // RFC 5545: every line (incl. last) ends CRLF
       return { kind: 'ics', filename: 'evenement.ics', text, label: 'Ajouter au calendrier' };
     }
 

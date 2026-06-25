@@ -43,7 +43,8 @@ def build_intent(action: dict, now: datetime) -> list[str]:
 
     if t == "appel":
         # DIAL (not CALL): opens the dialer pre-filled, never auto-dials.
+        num = "".join(c for c in action["destinataire"] if c.isdigit() or c == "+")
         return ["am", "start", "-a", "android.intent.action.DIAL",
-                "-d", f"tel:{action['destinataire']}"]
+                "-d", f"tel:{num}"]
 
     raise ValueError(f"type d'action inconnu: {t!r}")

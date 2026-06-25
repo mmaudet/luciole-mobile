@@ -1,6 +1,12 @@
 # staging/make_qr.py — generate the two onboarding QR codes.
-# Usage: python make_qr.py --ssid Luciole --pass motdepasse --ip 192.168.x.1
+# Usage (run from repo root): python staging/make_qr.py --ssid Luciole --pass motdepasse --ip 192.168.x.1
 import argparse, qrcode
+
+def _wifi_esc(s):
+    # WIFI QR spec: backslash-escape  \ ; , : "  (backslash first)
+    for ch in ('\\', ';', ',', ':', '"'):
+        s = s.replace(ch, '\\' + ch)
+    return s
 
 def main():
     ap = argparse.ArgumentParser()
@@ -10,7 +16,7 @@ def main():
     ap.add_argument("--port", default="8080")
     a = ap.parse_args()
     # WIFI join payload (WPA). Auto-joins on scan.
-    qrcode.make(f"WIFI:T:WPA;S:{a.ssid};P:{a.pwd};;").save("staging/wifi-join.png")
+    qrcode.make(f"WIFI:T:WPA;S:{_wifi_esc(a.ssid)};P:{_wifi_esc(a.pwd)};;").save("staging/wifi-join.png")
     qrcode.make(f"http://{a.ip}:{a.port}/").save("staging/open-url.png")
     print("wrote staging/wifi-join.png and staging/open-url.png")
 

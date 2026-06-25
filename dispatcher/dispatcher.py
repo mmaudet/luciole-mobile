@@ -20,7 +20,7 @@ def ask_model(phrase: str) -> dict:
             {"role": "user", "content": phrase},
         ],
         "temperature": 0.0,
-        "n_predict": 256,
+        "max_tokens": 256,
     }
     r = requests.post(API, json=payload, timeout=60)
     r.raise_for_status()
