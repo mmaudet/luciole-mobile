@@ -18,3 +18,6 @@ __pycache__/
 *.pyc
 
 .venv/
+
+# QR codes — regenerated on-site with real SSID/pass/IP values
+staging/*.png
