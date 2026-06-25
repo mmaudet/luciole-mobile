@@ -4,6 +4,7 @@ docs/
 # Modèles (volumineux — jamais committés)
 *.gguf
 models/
+.models/
 
 # OS / éditeurs
 .DS_Store
