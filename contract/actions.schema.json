@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Luciole action",
+  "oneOf": [
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "heure", "libelle"],
+      "properties": {
+        "type": { "const": "alarme" },
+        "heure": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" },
+        "libelle": { "type": "string", "minLength": 1 } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "titre", "quand"],
+      "properties": {
+        "type": { "const": "agenda" },
+        "titre": { "type": "string", "minLength": 1 },
+        "quand": { "type": "string", "minLength": 1 },
+        "duree_min": { "type": "integer", "minimum": 5, "maximum": 1440 },
+        "lieu": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "canal", "corps"],
+      "properties": {
+        "type": { "const": "message" },
+        "canal": { "enum": ["email", "sms"] },
+        "objet": { "type": "string" },
+        "corps": { "type": "string", "minLength": 1 } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "destination"],
+      "properties": {
+        "type": { "const": "itineraire" },
+        "destination": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["voiture", "transit", "pieton"] } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "destinataire"],
+      "properties": {
+        "type": { "const": "appel" },
+        "destinataire": { "type": "string" } } }
+  ]
+}
