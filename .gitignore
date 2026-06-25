@@ -1,0 +1,17 @@
+# Documentation de conception & d'implémentation (specs, plans) — conservée en local, non versionnée
+docs/
+
+# Modèles (volumineux — jamais committés)
+*.gguf
+models/
+
+# OS / éditeurs
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Dépendances éventuelles
+node_modules/
+__pycache__/
+*.pyc
