@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Luciole — l'IA qui agit</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.3rem; } textarea { width: 100%; height: 4rem; font-size: 1rem; }
+    button { font-size: 1rem; padding: .6rem 1rem; margin-top: .5rem; }
+    #out { margin-top: 1.2rem; } pre { background: #f4f4f4; padding: .6rem; overflow-x: auto; }
+    a.action { display: inline-block; margin-top: .6rem; padding: .7rem 1rem; background: #1558d6; color: #fff; text-decoration: none; border-radius: .4rem; }
+    .muted { color: #666; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <h1>🔦 Luciole — dites, l'IA agit</h1>
+  <p class="muted">100 % sur le téléphone là-bas. Aucun cloud. Tapez une phrase :</p>
+  <textarea id="phrase" placeholder="ex : rappelle-moi d'appeler le dentiste demain à 14h"></textarea>
+  <button id="go">Transformer en action</button>
+  <div id="out"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
