@@ -1,23 +1,76 @@
-# Runbook — Workshop Luciole-1B (30 min)
+# Runbook — Workshop Luciole-1B (30 min, 100 % on-device)
 
-## Pré-vol (avant la salle)
-1. Modèle sur le tél : `~/models/Luciole-1B-SFT-Q4_K_M.gguf` (cf. Task 11/13).
-2. Termux : `pkg install llama-cpp python termux-am` ; `pip install requests jsonschema`.
-3. Repo sur le tél : `~/luciole-mobile` (cloné/poussé) avec `contract/`, `web/`, `server/`.
-4. Test à blanc : `bash ~/luciole-mobile/server/run-server.sh` puis, depuis un 2e appareil
-   sur le hotspot, ouvrir `http://<ip>:8080/`.
+## 0. Architecture (rappel)
+Le **Pixel fait tout** : `llama-server` (cerveau, sortie **JSON garantie** par la grammaire GBNF)
++ `dispatcher` (mains, `am` → intents Android natifs) + la **page web** servie aux participants.
+5 intentions : **alarme, agenda, message (email/sms), itinéraire, appel**.
+Le dispatcher est **stdlib pur** (aucune dépendance pip). `jsonschema` est optionnel
+(`DISPATCH_VALIDATE=1`). Le numéro d'appel est **extrait de la phrase** (pas de la sortie du 1B).
 
-## Mise en scène (en salle)
-1. **Mode avion ON** (coupe internet) → **Hotspot ON** (WiFi local, sans backhaul).
-2. Relever l'IP du Pixel sur son hotspot (souvent `192.168.43.1`).
-3. Générer les QR : `python staging/make_qr.py --ssid <SSID> --pass <PWD> --ip <IP>`.
-4. Projeter `wifi-join.png` (rejoindre le WiFi) puis `open-url.png` (ouvrir la page).
-5. Preuve hors-ligne : depuis un tél de la salle, montrer que `google.com` échoue mais la page répond.
+## 1. Pré-vol (la veille, avec réseau)
+### 1a. Termux + dépendances (une seule fois)
+- Installer **Termux** (APK officiel GitHub, pas le Play Store). Via adb si besoin :
+  `adb shell settings put global verifier_verify_adb_installs 0` ; `adb install termux.apk` ;
+  remettre la valeur à `1` ensuite.
+- Pousser sur `/sdcard/Download/` : le repo (`git archive --format=tar.gz HEAD`), le modèle
+  `Luciole-1B-SFT-Q4_K_M.gguf`, et `scripts/termux_setup.sh`.
+- Dans Termux : `termux-setup-storage` (**Autoriser**), puis
+  `bash /sdcard/Download/termux_setup.sh`
+  → installe `llama-cpp python termux-am`, extrait le repo dans `~/luciole-mobile`,
+  copie le modèle dans `~/models`. (Log : `/sdcard/Download/luciole-setup.log`.)
 
-## Démo (Pixel, vidéoprojeté)
-- Lancer `run-server.sh`. Pour chaque action : `python ~/luciole-mobile/dispatcher/dispatcher.py "<phrase>"`.
-- Phrase « punch » : « rappelle-moi d'appeler le dentiste à 14h » → l'alarme se crée, **sans réseau**.
+### 1b. Anti-kill (IMPORTANT)
+Android tue les process en arrière-plan. Pour que le serveur tienne :
+- Réglages Android → Apps → **Termux → Batterie → Sans restriction**.
+- Dans Termux : `termux-wake-lock` (garde le CPU éveillé).
+- **Garder Termux au premier plan** pendant la démo (voir §3).
 
-## Repli
-- > 10 personnes : routeur de voyage sans WAN (Pixel + salle dessus).
-- `--path` absent du build : `python -m http.server 8081` dans `web/`, et la page pointe sur `http://<ip>:8080` pour l'API (passer la grammaire par requête).
+### 1c. Test à blanc
+- Serveur (déjà tuné : 6 threads sur les cœurs rapides + mlock) :
+  `bash ~/luciole-mobile/server/run-server.sh` → attendre `server is listening`.
+- **Pré-chauffe** (sinon le 1er appel = ~14 s ; ensuite ~2,4 s) :
+  `DISPATCH_DRY_RUN=1 python ~/luciole-mobile/dispatcher/dispatcher.py "mets une alarme à 8h"`
+- Tir réel : `python ~/luciole-mobile/dispatcher/dispatcher.py "mets une alarme à 7h30"`
+  → l'app Horloge crée l'alarme.
+
+## 2. Mise en scène offline (en salle)
+1. **Mode avion ON** (coupe internet) → **Hotspot / Point d'accès ON** (WiFi local sans backhaul).
+   Le serveur écoute sur `0.0.0.0:8080`, donc il reste joignable sur le hotspot.
+2. **IP du Pixel sur son hotspot** : souvent `192.168.43.1`. Sûr : sur le 2ᵉ appareil connecté,
+   regarder la **passerelle WiFi** = l'IP du Pixel. (Ou `ip -4 addr` dans Termux si `iproute2` est là.)
+3. QR : `python staging/make_qr.py --ssid <SSID> --pass <PWD> --ip <IP>`
+   → `wifi-join.png` (rejoindre le WiFi) + `open-url.png` (ouvrir `http://<IP>:8080/`).
+4. **Preuve hors-ligne** : montrer qu'un accès externe échoue (ex. charger google.com) mais que
+   la page Luciole répond — tout vient du téléphone.
+
+## 3. Démo pilotée (Pixel vidéoprojeté)
+- **Laisser Termux au premier plan** (sinon Android tue le serveur). Bonus : le **log serveur
+  qui défile** sur le projecteur = preuve visuelle que « ça calcule sur le téléphone ».
+- Pour chaque phrase : `python ~/luciole-mobile/dispatcher/dispatcher.py "<phrase>"`.
+- **Punch** : « mets une alarme à 7h30 » → l'alarme se pose, **sans réseau**.
+- Un exemple par intention :
+  - alarme : « rappelle-moi d'appeler le dentiste à 14h »
+  - agenda : « ajoute une réunion projet demain à 10h en salle B »
+  - message : « écris un mail à propos du retard de livraison » / « envoie un SMS … en retard de 10 min »
+  - itinéraire : « itinéraire vers la gare de Lyon à Paris »
+  - appel : « appelle le 06 12 34 56 78 » (s'ouvre dans le **numéroteur**, ne compose pas tout seul)
+
+## 4. Hands-on participants (web, leur propre tél)
+- **Pré-chauffe web** : ouvrir une fois `http://<IP>:8080/` et lancer **une** requête (le client web
+  envoie un prompt légèrement différent → réamorce le cache une fois, ~14 s, puis ~2-3 s).
+- **Concurrence** : pour plusieurs requêtes simultanées, relancer le serveur avec plus de slots —
+  `PARALLEL=2 CTX=4096 bash ~/luciole-mobile/server/run-server.sh` (garder CTX/PARALLEL ≥ ~1100).
+- Participants : scanner les 2 QR → page → taper une phrase → **deep-link adapté à l'OS**
+  (iOS : maps.apple.com / `sms:&body=` ; Android : `geo:` / `sms:?body=` ; `.ics` pour l'agenda).
+- **L'alarme n'a pas de bouton côté web** (aucun URI universel pour SET_ALARM) : c'est *justement*
+  ce que l'**agent natif** sur le Pixel sait faire → à montrer en pilote. Les 4 autres = deep-links.
+
+## 5. Dépannage
+- **Termux / serveur tué** (passage en arrière-plan) : rouvrir Termux, `termux-wake-lock`,
+  relancer `run-server.sh` puis **re-pré-chauffer**.
+- **1er appel lent (~14 s)** : normal (prompt froid) → toujours pré-chauffer avant de présenter.
+- **> 10 personnes** sur le hotspot : routeur de voyage sans WAN (Pixel + salle dessus).
+- **Piloter le tél depuis le Mac** (prep/debug, pas nécessaire en démo) : `sshd` Termux sur :8022
+  + `adb forward tcp:8022 tcp:8022` (USB, marche même en mode avion). Cf. mémoire `pixel-ssh-bridge`.
+- **`--path` non géré par le build llama** : servir `web/` via `python -m http.server 8081` et faire
+  pointer la page sur `http://<IP>:8080` pour l'API.

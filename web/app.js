@@ -1,13 +1,13 @@
 // web/app.js
-import { buildDeepLink } from './deeplinks.mjs';
+import { buildDeepLink, extractPhone } from './deeplinks.mjs';
 
 // Mirrors server/system_prompt.txt so the web (participant) path routes intentions
 // as reliably as the Pixel path. Keep the two in sync when the prompt changes.
 function systemPrompt() {
-  const now = new Date().toLocaleString('fr-FR');
+  // No current-time line on purpose: the model only emits RELATIVE forms ("demain HH:MM",
+  // weekday, "dans N minutes") and the deep-link resolver computes the absolute time. Keeping
+  // the prompt time-invariant means the server's KV cache stays warm across requests/minutes.
   return `Tu es un routeur d'intentions pour un assistant embarqué. Pour CHAQUE phrase de l'utilisateur, tu produis UNIQUEMENT un objet JSON décrivant l'action à effectuer, conforme au schéma imposé. Tu ne réponds JAMAIS en langage naturel et tu choisis EXACTEMENT une seule action.
-
-Date et heure actuelles : ${now}.
 
 Règles de choix de l'action :
 - "alarme" : réveil, minuteur, ou "rappelle-moi" à une heure précise. Champs : heure (HH:MM), libelle.
@@ -16,7 +16,7 @@ Règles de choix de l'action :
 - "itineraire" : se déplacer vers un lieu — "itinéraire", "aller à", "route vers". Champs : destination, mode (optionnel).
 - "appel" : appeler ou téléphoner à un numéro ou un contact. Champ : destinataire (chiffres uniquement, sans espaces).
 
-Pour le champ "quand", n'utilise QUE ces formes : "HH:MM", "demain HH:MM", "après-demain HH:MM", "<jour de la semaine> HH:MM", "dans N minutes", "dans N heures".
+Pour le champ "quand", n'utilise QUE ces formes : "HH:MM", "demain HH:MM", "après-demain HH:MM", "<jour de la semaine> HH:MM", "dans N minutes", "dans N heures". Ne calcule jamais de date absolue toi-même.
 
 Exemples :
 Phrase : rappelle-moi d'appeler le dentiste à 14h
@@ -82,6 +82,13 @@ function render(action) {
 document.getElementById('go').addEventListener('click', async () => {
   const out = document.getElementById('out');
   out.textContent = '…';
-  try { render(await ask(document.getElementById('phrase').value)); }
-  catch (e) { out.textContent = 'Erreur : ' + e.message; }
+  try {
+    const phrase = document.getElementById('phrase').value;
+    const action = await ask(phrase);
+    if (action.type === 'appel') {           // trust the phrase's digits, not the 1B's copy
+      const n = extractPhone(phrase);
+      if (n) action.destinataire = n;
+    }
+    render(action);
+  } catch (e) { out.textContent = 'Erreur : ' + e.message; }
 });

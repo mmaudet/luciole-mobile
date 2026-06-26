@@ -1,7 +1,7 @@
 from datetime import datetime
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parents[1]))
-from intents import build_intent
+from intents import build_intent, extract_phone
 
 NOW = datetime(2026, 6, 25, 9, 0)
 
@@ -44,3 +44,14 @@ def test_unknown_type():
     import pytest
     with pytest.raises(ValueError):
         build_intent({"type": "inconnu"}, NOW)
+
+def test_extract_phone_from_phrase():
+    assert extract_phone("appelle le 07 11 22 33 44") == "0711223344"
+    assert extract_phone("téléphone au 01 23 45 67 89") == "0123456789"
+    assert extract_phone("compose le 04.78.12.34.56") == "0478123456"
+    assert extract_phone("appelle le +33 6 12 34 56 78") == "+33612345678"
+    assert extract_phone("appelle le 06 12 34 56 78 avant 9h") == "0612345678"
+
+def test_extract_phone_none_when_no_number():
+    assert extract_phone("appelle Paul") is None
+    assert extract_phone("rappelle-moi à 14h") is None
