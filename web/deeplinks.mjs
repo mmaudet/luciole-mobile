@@ -71,6 +71,9 @@ export function buildDeepLink(action, platform, now) {
     case 'note':
       return { kind: 'download', filename: 'note.txt', text: action.texte || '', label: 'Télécharger la note' };
 
+    case 'recherche':
+      return { kind: 'href', href: `https://www.qwant.com/?q=${enc(action.requete || '')}`, label: 'Lancer la recherche' };
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }

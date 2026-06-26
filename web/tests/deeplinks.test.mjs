@@ -60,3 +60,9 @@ test('note produces a downloadable .txt', () => {
   assert.equal(r.filename, 'note.txt');
   assert.match(r.text, /acheter du pain/);
 });
+test('recherche opens Qwant with the query', () => {
+  const r = buildDeepLink({type:'recherche',requete:'tour Eiffel'}, 'android', NOW);
+  assert.equal(r.kind, 'href');
+  assert.match(r.href, /^https:\/\/www\.qwant\.com\/\?q=/);
+  assert.match(r.href, /tour%20Eiffel|tour\+Eiffel/);
+});

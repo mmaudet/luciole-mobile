@@ -77,3 +77,9 @@ def test_note_uses_send_text_plain():
     assert "android.intent.action.SEND" in argv
     assert "text/plain" in argv
     assert "acheter du pain" in argv
+
+def test_recherche_uses_web_search():
+    argv = build_intent({"type": "recherche", "requete": "tour Eiffel"}, NOW)
+    assert "android.intent.action.WEB_SEARCH" in argv
+    assert "query" in argv
+    assert "tour Eiffel" in argv

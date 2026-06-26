@@ -48,6 +48,11 @@
       "required": ["type", "texte"],
       "properties": {
         "type": { "const": "note" },
-        "texte": { "type": "string", "minLength": 1 } } }
+        "texte": { "type": "string", "minLength": 1 } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "requete"],
+      "properties": {
+        "type": { "const": "recherche" },
+        "requete": { "type": "string", "minLength": 1 } } }
   ]
 }
