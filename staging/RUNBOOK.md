@@ -82,14 +82,17 @@ Android tue les process en arrière-plan. Pour que le serveur tienne :
 - note : « note d'acheter du pain » (feuille de partage)
 - recherche : « c'est quoi la capitale de l'Australie » — sur le Pixel, `WEB_SEARCH` ouvre le **moteur par défaut du téléphone** (ex. Google sur un Pixel stock) ; **Qwant** est le chemin **web** (participants). Nécessite le réseau.
 - ouvrir : « ouvre YouTube » / « ouvre les réglages Bluetooth »
-- traduction : « traduis chat en anglais » (**100 % on-device** : Luciole écrit la traduction, marche hors-ligne)
+- traduction : « **traduis le chien dort en anglais** » → « dog is sleeping » (**100 % on-device**, hors-ligne)
 - hors-catalogue : « raconte-moi une blague » → message « je ne sais pas (encore) faire ça »
 
 **Limites de routage connues** (plafond d'un 1B ; e2e réel **21/21** sur les formulations principales) :
 - La grammaire garantit TOUJOURS un JSON **valide** (zéro crash). Ce sont des imprécisions de
   *routage* sur des formulations secondaires, pas des bugs.
-- **Traduction** : préférer « **traduis X en \<langue\>** ». « comment dit-on X » ou un mot de
-  politesse (« merci ») peuvent partir en `message`.
+- **Traduction** (qualité 1B, best-effort) : préférer « **traduis X en \<langue\>** » avec un
+  **texte simple et non ambigu**. Vérifié on-device : `bonjour→hello`, `maison→house`,
+  `le chien dort→dog is sleeping` ✓ ; mais mots ambigus (`chat`, `café`) souvent laissés tels
+  quels, phrases longues tronquées, et « comment dit-on X » ou « merci » peuvent partir en
+  `message`. **Curer les phrases de démo.** (La trad reste 100 % on-device/souveraine.)
 - **« ouvre \<app hors liste\> »** (ex. Spotify) ouvre une *autre* app de la liste au lieu de
   `inconnu` : le filet `inconnu` est fiable sur les impératifs clairement hors-catalogue
   (« raconte une blague »), pas sur une app plausible. Liste : youtube, maps, chrome,
