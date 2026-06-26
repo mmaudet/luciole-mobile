@@ -69,6 +69,29 @@ def test_extract_phone_none_when_no_number():
     assert extract_phone("appelle Paul") is None
     assert extract_phone("rappelle-moi à 14h") is None
 
+def test_match_contact_resolves_name():
+    from intents import match_contact
+    contacts = [
+        {"name": "Michel-Marie Maudet", "number": "+33 6 11 22 33 44"},
+        {"name": "Paul Durand", "number": "0612345678"},
+        {"name": "Marie Curie", "number": "0700000000"},
+    ]
+    assert match_contact("Michel-Marie Maudet", contacts) == "+33611223344"
+    assert match_contact("michel maudet", contacts) == "+33611223344"   # accents/casse/partiel
+    assert match_contact("Paul", contacts) == "0612345678"
+
+def test_match_contact_no_confident_match():
+    from intents import match_contact
+    contacts = [{"name": "Paul Durand", "number": "0612345678"}]
+    assert match_contact("Inconnu Personne", contacts) is None
+    assert match_contact("", contacts) is None
+
+def test_call_target_strips_verb():
+    from intents import call_target
+    assert call_target("appelle Paul Maudet") == "Paul Maudet"
+    assert call_target("téléphone à Marie Curie") == "Marie Curie"
+    assert call_target("appelle Michel-Marie Maudet") == "Michel-Marie Maudet"
+
 def test_minuteur_converts_minutes_to_seconds():
     argv = build_intent({"type": "minuteur", "duree_min": 10, "libelle": "thé"}, NOW)
     assert "android.intent.action.SET_TIMER" in argv

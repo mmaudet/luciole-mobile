@@ -16,7 +16,9 @@
 # together, e.g.
 #   PARALLEL=2 CTX=4096 bash server/run-server.sh   # 2 concurrent, 2048 tokens/slot (safe)
 set -euo pipefail
-MODEL="${MODEL:-$HOME/models/Luciole-1B-SFT-Q4_K_M.gguf}"
+# Default = Luciole-1B-Instruct-1.0 (Nemotron, converted to GGUF Q4_K_M). The SFT-1.1 build
+# stays as a fallback:  MODEL=$HOME/models/Luciole-1B-SFT-Q4_K_M.gguf bash server/run-server.sh
+MODEL="${MODEL:-$HOME/models/Luciole-1B-Instruct-Q4_K_M.gguf}"
 GRAMMAR="${GRAMMAR:-$HOME/luciole-mobile/contract/actions.gbnf}"
 THREADS="${THREADS:-6}"        # number of inference threads (6 fast cores)
 CPU_MASK="${CPU_MASK:-FC}"     # 0xFC = cpu2..7; skips the 2 little cores (cpu0-1)

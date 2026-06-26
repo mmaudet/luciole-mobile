@@ -19,14 +19,24 @@ export function extractPhone(text) {
   return digits.replace(/\D/g, '').length >= 6 ? digits : null;
 }
 
+const CALL_PREFIX = /^\s*(?:appelle|appeler|appelles|appelez|t[ée]l[ée]phone[rz]?|compose[rz]?|joins)\s*(?:à|au|aux|le|la|l['’])?\s*/i;
+// Name to call when no number is spoken: 'appelle Paul Maudet' -> 'Paul Maudet'.
+export function callTarget(phrase) {
+  return (phrase || '').replace(CALL_PREFIX, '').trim();
+}
+
 export function buildDeepLink(action, platform, now) {
   switch (action.type) {
     case 'alarme':
       return { kind: 'unsupported', label: "Alarme : démo sur le Pixel uniquement (non disponible côté web)" };
 
-    case 'appel':
-      // strip spaces/separators so the tel: URI is well-formed
-      return { kind: 'href', href: `tel:${(action.destinataire || '').replace(/\s/g, '')}`, label: 'Ouvrir le numéroteur' };
+    case 'appel': {
+      // A number -> tel:. A contact NAME -> the address-book lookup is Pixel-only (no browser access).
+      const num = (action.destinataire || '').replace(/[^\d+]/g, '');
+      return /\d/.test(num)
+        ? { kind: 'href', href: `tel:${num}`, label: 'Ouvrir le numéroteur' }
+        : { kind: 'text', text: `Appel de « ${action.destinataire} » — recherche dans le carnet d’adresses : démo sur le Pixel.` };
+    }
 
     case 'message':
       if (action.canal === 'email') {
