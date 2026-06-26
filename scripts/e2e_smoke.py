@@ -36,6 +36,18 @@ CASES = [
     ("itinéraire vers la gare de Lyon à Paris",                  "itineraire", None),
     ("appelle le 06 12 34 56 78",                                "appel",      None),
     ("préviens par texto que j'arrive dans 5 minutes",           "message",    "sms"),
+    ("minuteur de 10 minutes pour le thé",                       "minuteur",   None),
+    ("mets un compte à rebours de 5 minutes",                    "minuteur",   None),
+    ("note d'acheter du pain",                                   "note",       None),
+    ("prends une note : réserver le restaurant",                "note",       None),
+    ("c'est quoi la capitale de l'Australie",                    "recherche",  None),
+    ("cherche les horaires du musée du Louvre",                 "recherche",  None),
+    ("ouvre YouTube",                                            "ouvrir",     None),
+    ("ouvre les réglages Bluetooth",                            "ouvrir",     None),
+    ("traduis bonjour le monde en anglais",                     "traduction", None),
+    ("comment dit-on merci en espagnol",                        "traduction", None),
+    ("raconte-moi une blague",                                   "inconnu",    None),
+    ("quel temps fera-t-il demain à Paris",                     "inconnu",    None),
 ]
 
 def ask(phrase):
@@ -54,7 +66,10 @@ def main():
         try:
             action = json.loads(ask(phrase))
             VALIDATOR.validate(action)
-            argv = build_intent(action, now)
+            if action.get("type") not in {"inconnu", "traduction"}:
+                argv = build_intent(action, now)
+            else:
+                argv = ["(display-only)"]
             type_ok = action.get("type") == exp_type
             canal_ok = exp_canal is None or action.get("canal") == exp_canal
             ok = type_ok and canal_ok
