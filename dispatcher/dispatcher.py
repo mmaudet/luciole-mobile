@@ -1,16 +1,24 @@
-"""On-device 'hands': phrase -> model API -> validate -> fire Android intent.
-Run inside Termux on the Pixel. Requires: pip install jsonschema requests (Termux)."""
-import json, pathlib, subprocess, sys
+"""On-device 'hands': phrase -> model API -> (optional validate) -> fire Android intent.
+Run inside Termux on the Pixel. STDLIB-ONLY by default (no pip deps): the HTTP call
+uses urllib, and the server-level GBNF grammar already guarantees schema-valid JSON.
+
+Optional env switches:
+  DISPATCH_VALIDATE=1  -> also validate against the JSON Schema (needs `pip install jsonschema`)
+  DISPATCH_DRY_RUN=1   -> print the intent but do NOT fire it (for benchmarks/tests)
+"""
+import json, os, pathlib, subprocess, sys, urllib.request
 from datetime import datetime
-import requests
-from jsonschema import Draft202012Validator
-from intents import build_intent
+from intents import build_intent, extract_phone
 
 ROOT = pathlib.Path(__file__).parents[1]
-SCHEMA = json.loads((ROOT / "contract/actions.schema.json").read_text())
-VALIDATOR = Draft202012Validator(SCHEMA)
 SYSTEM = (ROOT / "server/system_prompt.txt").read_text()
 API = "http://127.0.0.1:8080/v1/chat/completions"
+
+VALIDATOR = None
+if os.environ.get("DISPATCH_VALIDATE"):
+    from jsonschema import Draft202012Validator  # optional defense-in-depth
+    VALIDATOR = Draft202012Validator(
+        json.loads((ROOT / "contract/actions.schema.json").read_text()))
 
 def ask_model(phrase: str) -> dict:
     now = datetime.now().strftime("%Y-%m-%d %H:%M (%A)")
@@ -22,9 +30,10 @@ def ask_model(phrase: str) -> dict:
         "temperature": 0.0,
         "max_tokens": 256,
     }
-    r = requests.post(API, json=payload, timeout=60)
-    r.raise_for_status()
-    content = r.json()["choices"][0]["message"]["content"]
+    req = urllib.request.Request(API, data=json.dumps(payload).encode(),
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        content = json.loads(r.read())["choices"][0]["message"]["content"]
     return json.loads(content)
 
 def main():
@@ -32,10 +41,15 @@ def main():
     if not phrase:
         print("usage: python dispatcher.py \"<phrase>\"", file=sys.stderr); sys.exit(2)
     action = ask_model(phrase)
-    VALIDATOR.validate(action)                 # defense in depth: reject off-grammar output
+    if VALIDATOR is not None:
+        VALIDATOR.validate(action)             # defense in depth: reject off-grammar output
+    if action.get("type") == "appel":          # trust the phrase's digits, not the 1B's copy
+        action["destinataire"] = extract_phone(phrase) or action.get("destinataire", "")
     argv = build_intent(action, datetime.now())
     print("ACTION:", json.dumps(action, ensure_ascii=False))
     print("INTENT:", " ".join(argv))
+    if os.environ.get("DISPATCH_DRY_RUN"):
+        return
     subprocess.run(argv, check=True)           # fires the native intent
 
 if __name__ == "__main__":

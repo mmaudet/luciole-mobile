@@ -8,6 +8,17 @@ function icsStamp(d) {
   return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
 
+// Most digit-rich phone-like run in `text`, as digits (keeping a leading +), else null.
+// The 1B is unreliable at copying a 10-digit number, so for "appel" we take it from the phrase.
+export function extractPhone(text) {
+  let best = '';
+  for (const m of text.match(/\+?\d[\d . -]{4,}\d/g) || []) {
+    if (m.replace(/\D/g, '').length > best.replace(/\D/g, '').length) best = m;
+  }
+  const digits = (best.match(/[\d+]/g) || []).join('');
+  return digits.replace(/\D/g, '').length >= 6 ? digits : null;
+}
+
 export function buildDeepLink(action, platform, now) {
   switch (action.type) {
     case 'alarme':

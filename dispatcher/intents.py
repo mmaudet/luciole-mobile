@@ -1,7 +1,22 @@
-"""Map a validated action dict to an `am start` argv. Pure: no side effects."""
+"""Map a validated action dict to an `am start` argv, and pull the phone number from the
+user's phrase. Pure: no side effects."""
+import re
 from datetime import datetime, timedelta
 from urllib.parse import quote
 from datetime_fr import resolve_datetime
+
+_PHONE_RE = re.compile(r"\+?\d[\d \-. ]{4,}\d")
+
+def extract_phone(text: str) -> str | None:
+    """Most digit-rich phone-like run in `text`, as digits (keeping a leading +), else None.
+    A 1B model is unreliable at copying a 10-digit number, so for "appel" we take the number
+    straight from the user's phrase instead of trusting the model's `destinataire`."""
+    best = ""
+    for m in _PHONE_RE.findall(text):
+        if len(re.sub(r"\D", "", m)) > len(re.sub(r"\D", "", best)):
+            best = m
+    digits = "".join(c for c in best if c.isdigit() or c == "+")
+    return digits if len(re.sub(r"\D", "", digits)) >= 6 else None
 
 def _epoch_ms(dt: datetime) -> str:
     return str(int(dt.timestamp() * 1000))

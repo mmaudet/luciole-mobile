@@ -1,7 +1,7 @@
 // web/tests/deeplinks.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDeepLink } from '../deeplinks.mjs';
+import { buildDeepLink, extractPhone } from '../deeplinks.mjs';
 
 const NOW = new Date(2026, 5, 25, 9, 0, 0);
 
@@ -34,4 +34,15 @@ test('agenda produces ics with DTSTART', () => {
   assert.match(r.text, /BEGIN:VCALENDAR/);
   assert.match(r.text, /DTSTART:20260626T100000/);
   assert.match(r.text, /SUMMARY:R/);
+});
+test('extractPhone pulls the number from the phrase', () => {
+  assert.equal(extractPhone('appelle le 07 11 22 33 44'), '0711223344');
+  assert.equal(extractPhone('téléphone au 01 23 45 67 89'), '0123456789');
+  assert.equal(extractPhone('compose le 04.78.12.34.56'), '0478123456');
+  assert.equal(extractPhone('appelle le +33 6 12 34 56 78'), '+33612345678');
+  assert.equal(extractPhone('appelle le 06 12 34 56 78 avant 9h'), '0612345678');
+});
+test('extractPhone returns null when no real number', () => {
+  assert.equal(extractPhone('appelle Paul'), null);
+  assert.equal(extractPhone('rappelle-moi à 14h'), null);
 });
