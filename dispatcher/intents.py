@@ -1,6 +1,6 @@
 """Map a validated action dict to an `am start` argv, and pull the phone number from the
-user's phrase. Pure: no side effects."""
-import re
+user's phrase (or resolve a contact name). Pure: no side effects."""
+import re, unicodedata
 from datetime import datetime, timedelta
 from urllib.parse import quote
 from datetime_fr import resolve_datetime
@@ -46,6 +46,51 @@ def extract_phone(text: str) -> str | None:
             best = m
     digits = "".join(c for c in best if c.isdigit() or c == "+")
     return digits if len(re.sub(r"\D", "", digits)) >= 6 else None
+
+def _norm_name(s: str) -> str:
+    """Lowercase, strip accents, turn punctuation into spaces, collapse whitespace."""
+    s = unicodedata.normalize("NFKD", s or "")
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    s = "".join(c if c.isalnum() else " " for c in s.lower())
+    return " ".join(s.split())
+
+def match_contact(query: str, contacts: list) -> str | None:
+    """Best phone number (digits, keeping a leading +) for a spoken name among a list of
+    {"name", "number"} dicts, or None if no confident match. Pure: no I/O.
+    For "appelle <nom>", the 1B classifies the intent + name; we resolve the number here."""
+    q = _norm_name(query)
+    if not q:
+        return None
+    qtok = set(q.split())
+    best, best_score = None, 0.0
+    for c in contacts:
+        name = _norm_name(c.get("name", ""))
+        number = c.get("number") or ""
+        if not name or not number:
+            continue
+        ntok = set(name.split())
+        if name == q:
+            score = 1.0
+        elif qtok and qtok <= ntok:           # every spoken token is in the contact name
+            score = 0.9
+        elif qtok & ntok:                      # partial token overlap
+            score = 0.7 * len(qtok & ntok) / len(qtok)
+        else:
+            score = 0.0
+        if score > best_score:
+            best, best_score = number, score
+    if best is None or best_score < 0.5:       # too weak -> don't dial a wrong contact
+        return None
+    return "".join(ch for ch in best if ch.isdigit() or ch == "+")
+
+_CALL_PREFIX = re.compile(
+    r"^\s*(?:appelle|appeler|appelles|appelez|t[ée]l[ée]phone[rz]?|compose[rz]?|joins)"
+    r"\s*(?:à|au|aux|le|la|l['’])?\s*", re.IGNORECASE)
+
+def call_target(phrase: str) -> str:
+    """The contact name to dial: the phrase minus a leading call verb (no number spoken).
+    'appelle Paul Maudet' -> 'Paul Maudet'. Taken from the PHRASE, not the 1B's output."""
+    return _CALL_PREFIX.sub("", phrase or "", count=1).strip(" .,!?;:'\"«»")
 
 def _epoch_ms(dt: datetime) -> str:
     return str(int(dt.timestamp() * 1000))

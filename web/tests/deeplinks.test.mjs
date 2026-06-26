@@ -1,7 +1,7 @@
 // web/tests/deeplinks.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDeepLink, extractPhone } from '../deeplinks.mjs';
+import { buildDeepLink, extractPhone, callTarget } from '../deeplinks.mjs';
 
 const NOW = new Date(2026, 5, 25, 9, 0, 0);
 
@@ -23,6 +23,15 @@ test('sms body separator differs by platform', () => {
 });
 test('tel both platforms', () => {
   assert.equal(buildDeepLink({type:'appel',destinataire:'0612'}, 'ios', NOW).href, 'tel:0612');
+});
+test('appel by contact name is Pixel-only text (no tel:)', () => {
+  const r = buildDeepLink({type:'appel',destinataire:'Michel-Marie Maudet'}, 'android', NOW);
+  assert.equal(r.kind, 'text');
+  assert.match(r.text, /Pixel/);
+});
+test('callTarget strips the call verb', () => {
+  assert.equal(callTarget('appelle Paul Maudet'), 'Paul Maudet');
+  assert.equal(callTarget('téléphone à Marie'), 'Marie');
 });
 test('itineraire differs by platform', () => {
   assert.match(buildDeepLink({type:'itineraire',destination:'Gare'}, 'android', NOW).href, /^geo:0,0\?q=Gare/);
