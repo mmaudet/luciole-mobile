@@ -14,6 +14,7 @@ VALID = [
     {"type": "inconnu"},
     {"type": "minuteur", "duree_min": 10, "libelle": "thé"},
     {"type": "minuteur", "duree_min": 5},
+    {"type": "note", "texte": "acheter du pain"},
 ]
 INVALID = [
     {"type": "alarme", "heure": "26:00", "libelle": "x"},      # bad hour
@@ -24,6 +25,8 @@ INVALID = [
     {"type": "appel", "destinataire": "x", "extra": 1},          # additionalProperties
     {"type": "minuteur", "duree_min": 0},                        # < minimum
     {"type": "minuteur"},                                         # duree_min manquant
+    {"type": "note", "texte": ""},                               # minLength 1
+    {"type": "note"},                                            # texte manquant
 ]
 
 @pytest.mark.parametrize("obj", VALID)

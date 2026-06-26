@@ -43,6 +43,11 @@
       "properties": {
         "type": { "const": "minuteur" },
         "duree_min": { "type": "integer", "minimum": 1, "maximum": 1440 },
-        "libelle": { "type": "string" } } }
+        "libelle": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "texte"],
+      "properties": {
+        "type": { "const": "note" },
+        "texte": { "type": "string", "minLength": 1 } } }
   ]
 }

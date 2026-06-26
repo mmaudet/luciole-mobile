@@ -43,6 +43,12 @@ function render(action) {
     a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/calendar' }));
     a.download = link.filename; a.textContent = link.label;
     out.appendChild(a);
+  } else if (link.kind === 'download') {
+    const a = document.createElement('a');
+    a.className = 'action';
+    a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/plain' }));
+    a.download = link.filename; a.textContent = link.label;
+    out.appendChild(a);
   } else if (link.kind === 'text') {
     const p = document.createElement('p');
     p.textContent = link.text;

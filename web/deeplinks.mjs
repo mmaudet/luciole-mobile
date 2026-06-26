@@ -68,6 +68,9 @@ export function buildDeepLink(action, platform, now) {
     case 'minuteur':
       return { kind: 'unsupported', label: 'Minuteur : démo sur le Pixel uniquement' };
 
+    case 'note':
+      return { kind: 'download', filename: 'note.txt', text: action.texte || '', label: 'Télécharger la note' };
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }
