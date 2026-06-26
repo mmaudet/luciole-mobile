@@ -53,6 +53,11 @@ def test_display_text_none_for_fireable():
     from intents import display_text
     assert display_text({"type": "alarme", "heure": "8:00", "libelle": "x"}) is None
 
+def test_display_text_traduction_returns_resultat():
+    from intents import display_text
+    a = {"type": "traduction", "texte": "bonjour", "cible": "anglais", "resultat": "hello"}
+    assert display_text(a) == "hello"
+
 def test_extract_phone_from_phrase():
     assert extract_phone("appelle le 07 11 22 33 44") == "0711223344"
     assert extract_phone("téléphone au 01 23 45 67 89") == "0123456789"
