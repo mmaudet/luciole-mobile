@@ -18,6 +18,7 @@ VALID = [
     {"type": "recherche", "requete": "capitale de l'Australie"},
     {"type": "ouvrir", "cible": "youtube"},
     {"type": "ouvrir", "cible": "bluetooth"},
+    {"type": "traduction", "texte": "bonjour le monde", "cible": "anglais", "resultat": "hello world"},
 ]
 INVALID = [
     {"type": "alarme", "heure": "26:00", "libelle": "x"},      # bad hour
@@ -34,6 +35,8 @@ INVALID = [
     {"type": "recherche"},                                       # requete manquant
     {"type": "ouvrir", "cible": "spotify"},                      # hors enum
     {"type": "ouvrir"},                                          # cible manquant
+    {"type": "traduction", "texte": "x", "cible": "klingon", "resultat": "y"},   # langue hors enum
+    {"type": "traduction", "texte": "x", "cible": "anglais"},                    # resultat manquant
 ]
 
 @pytest.mark.parametrize("obj", VALID)

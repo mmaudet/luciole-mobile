@@ -33,7 +33,7 @@ def display_text(action: dict) -> str | None:
     if t == "inconnu":
         return MESSAGE_INCONNU
     if t == "traduction":
-        return action.get("resultat", "")
+        return action.get("resultat") or None
     return None
 
 def extract_phone(text: str) -> str | None:

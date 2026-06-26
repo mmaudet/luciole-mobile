@@ -70,3 +70,8 @@ test('ouvrir youtube -> https href, bluetooth -> unsupported', () => {
   assert.match(buildDeepLink({type:'ouvrir',cible:'youtube'}, 'android', NOW).href, /youtube\.com/);
   assert.equal(buildDeepLink({type:'ouvrir',cible:'bluetooth'}, 'android', NOW).kind, 'unsupported');
 });
+test('traduction shows the resultat as text', () => {
+  const r = buildDeepLink({type:'traduction',texte:'bonjour',cible:'anglais',resultat:'hello'}, 'android', NOW);
+  assert.equal(r.kind, 'text');
+  assert.equal(r.text, 'hello');
+});

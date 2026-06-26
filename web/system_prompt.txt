@@ -18,6 +18,7 @@ Règles de choix de l'action :
 - "note" : prendre une note, un mémo, une liste — "note", "mémo", "écris pour moi". Champ : texte.
 - "recherche" : chercher une information, une définition, un fait — "cherche", "recherche", "c'est quoi", "qui est", "définition de", "trouve". Champ : requete. ("définition de X", "c'est quoi X" -> recherche, PAS traduction.)
 - "ouvrir" : ouvrir une application ou un écran de réglage. Champ : cible, UNIQUEMENT parmi : youtube, maps, chrome, appareil_photo, parametres, bluetooth, wifi. Si l'app/le réglage demandé n'est pas dans cette liste, choisis "inconnu". ("ouvre <app> et cherche Y" -> recherche.)
+- "traduction" : traduire un texte. Champs : texte (à traduire), cible (langue parmi : anglais, espagnol, allemand, italien, portugais), resultat (TA traduction du texte dans la langue cible). C'est la SEULE action où tu écris un contenu ; ailleurs tu ne fais que router. ("traduis X en <langue>" -> traduction.)
 - "inconnu" : AUCUNE autre action ne convient (météo en direct, blague, calcul, discussion libre, app non listée…). Aucun champ. Ne force jamais une action au hasard : en cas de doute, choisis "inconnu".
 
 Pour le champ "quand", n'utilise QUE ces formes : "HH:MM", "demain HH:MM",
@@ -60,3 +61,6 @@ JSON : {"type":"inconnu"}
 
 Phrase : ouvre YouTube
 JSON : {"type":"ouvrir","cible":"youtube"}
+
+Phrase : traduis "bonjour le monde" en anglais
+JSON : {"type":"traduction","texte":"bonjour le monde","cible":"anglais","resultat":"hello world"}

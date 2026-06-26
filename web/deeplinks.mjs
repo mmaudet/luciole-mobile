@@ -82,6 +82,9 @@ export function buildDeepLink(action, platform, now) {
         : { kind: 'unsupported', label: '« Ouvrir » : démo sur le Pixel uniquement' };
     }
 
+    case 'traduction':
+      return { kind: 'text', text: action.resultat || '' };
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }

@@ -58,6 +58,13 @@
       "required": ["type", "cible"],
       "properties": {
         "type": { "const": "ouvrir" },
-        "cible": { "enum": ["youtube", "maps", "chrome", "appareil_photo", "parametres", "bluetooth", "wifi"] } } }
+        "cible": { "enum": ["youtube", "maps", "chrome", "appareil_photo", "parametres", "bluetooth", "wifi"] } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "texte", "cible", "resultat"],
+      "properties": {
+        "type": { "const": "traduction" },
+        "texte": { "type": "string", "minLength": 1 },
+        "cible": { "enum": ["anglais", "espagnol", "allemand", "italien", "portugais"] },
+        "resultat": { "type": "string", "minLength": 1 } } }
   ]
 }
