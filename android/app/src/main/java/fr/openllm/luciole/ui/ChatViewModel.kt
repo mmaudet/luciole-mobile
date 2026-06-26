@@ -34,6 +34,8 @@ class ChatViewModel(
     val state: StateFlow<ChatState> = _state.asStateFlow()
 
     fun envoyer(phrase: String) {
+        if (phrase.isBlank()) return
+
         _state.update { it.copy(
             messages = it.messages + Message(Role.USER, phrase),
             enCours = true
@@ -43,18 +45,13 @@ class ChatViewModel(
             try {
                 val action = cerveau.suggest(phrase)
                 val sortie = Mains.traiter(action, phrase, resoudreContact)
-                val texte = when (sortie) {
-                    is Sortie.Afficher -> sortie.texte
-                    is Sortie.Lancer -> sortie.spec.action
-                    is Sortie.ContactIntrouvable -> "Contact introuvable : ${sortie.nom}"
-                }
                 _state.update { it.copy(
-                    messages = it.messages + Message(Role.LUCIOLE, texte, sortie),
+                    messages = it.messages + Message(Role.LUCIOLE, texte = "", sortie = sortie),
                     enCours = false
                 )}
             } catch (e: CerveauIndisponible) {
                 _state.update { it.copy(
-                    messages = it.messages + Message(Role.LUCIOLE, "Cerveau indisponible"),
+                    messages = it.messages + Message(Role.LUCIOLE, texte = "serveur_indisponible", sortie = null),
                     enCours = false
                 )}
             }
