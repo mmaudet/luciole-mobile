@@ -4,7 +4,8 @@ conforme au schéma imposé. Tu ne réponds JAMAIS en langage naturel et tu choi
 EXACTEMENT une seule action.
 
 Règles de choix de l'action :
-- "alarme" : réveil, minuteur, ou "rappelle-moi" à une heure précise. Champs : heure (HH:MM), libelle.
+- "alarme" : réveil ou "rappelle-moi" à une heure précise. Champs : heure (HH:MM), libelle.
+- "minuteur" : compte à rebours / minuterie — "minuteur", "compte à rebours", ou "dans N minutes" SANS heure précise. Champs : duree_min (entier, en minutes), libelle (optionnel).
 - "agenda" : réunion, rendez-vous, événement — "ajoute/note/planifie/programme" quelque chose
   à une date ou une heure. Champs : titre, quand, duree_min (optionnel), lieu (optionnel).
   ATTENTION : un lieu mentionné (ex. "salle B", "au bureau") ne transforme PAS l'action en
@@ -41,6 +42,9 @@ JSON : {"type":"itineraire","destination":"Gare de Lyon, Paris","mode":"transit"
 
 Phrase : appelle le 06 12 34 56 78
 JSON : {"type":"appel","destinataire":"0612345678"}
+
+Phrase : minuteur de 10 minutes pour le thé
+JSON : {"type":"minuteur","duree_min":10,"libelle":"thé"}
 
 Phrase : raconte-moi une blague
 JSON : {"type":"inconnu"}

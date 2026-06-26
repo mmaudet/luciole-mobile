@@ -37,6 +37,12 @@
     { "type": "object", "additionalProperties": false,
       "required": ["type"],
       "properties": {
-        "type": { "const": "inconnu" } } }
+        "type": { "const": "inconnu" } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "duree_min"],
+      "properties": {
+        "type": { "const": "minuteur" },
+        "duree_min": { "type": "integer", "minimum": 1, "maximum": 1440 },
+        "libelle": { "type": "string" } } }
   ]
 }
