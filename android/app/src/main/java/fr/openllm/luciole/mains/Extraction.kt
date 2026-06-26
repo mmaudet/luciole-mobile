@@ -1,22 +1,32 @@
 package fr.openllm.luciole.mains
 
 object Extraction {
-    // Extended regex to match Python's _CALL_PREFIX from dispatcher/intents.py
-    // Covers: appelle[rz]?, appeler, appelles, appelez, t[ée]l[ée]phone[rz]?, compose[rz]?, joins
-    // Plus the brief's new verbs: passe[rz]? un appel, contacte[rz]?
+    // Mirrors Python's _CALL_PREFIX from dispatcher/intents.py exactly (verbs: appelle|appeler|appelles|appelez|
+    // t[ée]l[ée]phone[rz]?|compose[rz]?|joins). 'appelles' placed before 'appelle' to prevent
+    // the shorter alternative from matching first (alternation is ordered/leftmost-first).
     private val callPrefix = Regex(
-        """^\s*(?:appelle[rz]?|appeler|appeles|appelez|t[ée]l[ée]phone[rz]?|compose[rz]?|joins|passe[rz]?\s+un\s+appel|contacte[rz]?)\s*(?:à|au|aux|le|la|l[''])?\s*""",
+        """^\s*(?:appelles|appeler|appelle|appelez|t[ée]l[ée]phone[rz]?|compose[rz]?|joins)\s*(?:à|au|aux|le|la|l[''])?\s*""",
         RegexOption.IGNORE_CASE
     )
 
-    fun callTarget(phrase: String): String = phrase.replaceFirst(callPrefix, "").trim()
+    // Mirrors Python's _PHONE_RE: r"\+?\d[\d \-. ]{4,}\d"
+    private val phoneRe = Regex("""\+?\d[\d \-. ]{4,}\d""")
+
+    fun callTarget(phrase: String): String =
+        phrase.replaceFirst(callPrefix, "").trim { it in " .,!?;:'\"«»" }
 
     fun extractPhone(phrase: String): String? {
-        // Match phone patterns: optional +, digit, then 4+ chars of digits/spaces/dots/dashes, end with digit
-        val m = Regex("""\+?\d[\d \.\-]{4,}\d""").find(phrase) ?: return null
-        val raw = m.value
-        val plus = raw.trimStart().startsWith("+")
-        val digits = raw.filter { it.isDigit() }
+        // Collect all matches, pick the one with the most digits (mirrors Python's extract_phone)
+        var best = ""
+        for (m in phoneRe.findAll(phrase)) {
+            val v = m.value
+            if (v.filter { it.isDigit() }.length > best.filter { it.isDigit() }.length) {
+                best = v
+            }
+        }
+        if (best.isEmpty()) return null
+        val plus = best.startsWith("+")
+        val digits = best.filter { it.isDigit() }
         if (digits.length < 6) return null
         return if (plus) "+$digits" else digits
     }
