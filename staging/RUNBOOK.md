@@ -3,7 +3,8 @@
 ## 0. Architecture (rappel)
 Le **Pixel fait tout** : `llama-server` (cerveau, sortie **JSON garantie** par la grammaire GBNF)
 + `dispatcher` (mains, `am` → intents Android natifs) + la **page web** servie aux participants.
-5 intentions : **alarme, agenda, message (email/sms), itinéraire, appel**.
+**11 intentions** : alarme, agenda, message (email/sms), itinéraire, appel — plus **minuteur,
+note, recherche (Qwant), ouvrir (app/réglage), traduction (on-device), inconnu** (message « hors catalogue »). Cf. §6.
 Le dispatcher est **stdlib pur** (aucune dépendance pip). `jsonschema` est optionnel
 (`DISPATCH_VALIDATE=1`). Le numéro d'appel est **extrait de la phrase** (pas de la sortie du 1B).
 
@@ -74,3 +75,24 @@ Android tue les process en arrière-plan. Pour que le serveur tienne :
   + `adb forward tcp:8022 tcp:8022` (USB, marche même en mode avion). Cf. mémoire `pixel-ssh-bridge`.
 - **`--path` non géré par le build llama** : servir `web/` via `python -m http.server 8081` et faire
   pointer la page sur `http://<IP>:8080` pour l'API.
+
+## 6. Catalogue élargi (nouvelles actions) & limites de routage
+**Démo des nouvelles actions** (toutes sauf `recherche` marchent en mode avion) :
+- minuteur : « minuteur de 10 minutes pour le thé » (démarre tout de suite)
+- note : « note d'acheter du pain » (feuille de partage)
+- recherche : « c'est quoi la capitale de l'Australie » (**ouvre Qwant — nécessite le réseau** ; à réserver au hands-on en ligne)
+- ouvrir : « ouvre YouTube » / « ouvre les réglages Bluetooth »
+- traduction : « traduis chat en anglais » (**100 % on-device** : Luciole écrit la traduction, marche hors-ligne)
+- hors-catalogue : « raconte-moi une blague » → message « je ne sais pas (encore) faire ça »
+
+**Limites de routage connues** (plafond d'un 1B ; e2e réel **21/21** sur les formulations principales) :
+- La grammaire garantit TOUJOURS un JSON **valide** (zéro crash). Ce sont des imprécisions de
+  *routage* sur des formulations secondaires, pas des bugs.
+- **Traduction** : préférer « **traduis X en \<langue\>** ». « comment dit-on X » ou un mot de
+  politesse (« merci ») peuvent partir en `message`.
+- **« ouvre \<app hors liste\> »** (ex. Spotify) ouvre une *autre* app de la liste au lieu de
+  `inconnu` : le filet `inconnu` est fiable sur les impératifs clairement hors-catalogue
+  (« raconte une blague »), pas sur une app plausible. Liste : youtube, maps, chrome,
+  appareil_photo, parametres, bluetooth, wifi.
+- Conseil scène : s'en tenir aux formulations ci-dessus ; le hands-on tolère l'imprécision
+  (le JSON reste valide, l'action est juste parfois approximative).

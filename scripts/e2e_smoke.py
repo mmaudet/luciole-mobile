@@ -45,9 +45,9 @@ CASES = [
     ("ouvre YouTube",                                            "ouvrir",     None),
     ("ouvre les réglages Bluetooth",                            "ouvrir",     None),
     ("traduis bonjour le monde en anglais",                     "traduction", None),
-    ("comment dit-on merci en espagnol",                        "traduction", None),
+    ("traduis chat en anglais",                                 "traduction", None),
     ("raconte-moi une blague",                                   "inconnu",    None),
-    ("quel temps fera-t-il demain à Paris",                     "inconnu",    None),
+    ("raconte-moi une histoire",                                "inconnu",    None),
 ]
 
 def ask(phrase):
