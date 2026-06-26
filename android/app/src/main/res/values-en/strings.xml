@@ -16,4 +16,9 @@
     <string name="aucune_donnee">🔒 No data leaves the phone</string>
     <string name="nav_chat">Chat</string>
     <string name="nav_moniteur">Monitor</string>
+    <string-array name="exemples">
+        <item>set a 5-minute timer</item>
+        <item>call Paul Maudet</item>
+        <item>directions to the station</item>
+    </string-array>
 </resources>

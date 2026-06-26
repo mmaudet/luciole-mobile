@@ -7,6 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,8 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,6 +43,9 @@ class MainActivity : ComponentActivity() {
 
     // Permission READ_CONTACTS — doit être enregistrée avant onStart()
     private val contactPermissionGranted = AtomicBoolean(false)
+
+    // Guard fire-once : on ne demande la permission qu'au premier envoi.
+    private val contactPermissionDejaDemande = AtomicBoolean(false)
 
     private val requestContactPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -71,8 +76,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Demander la permission READ_CONTACTS au lancement
-        requestContactPermission.launch(Manifest.permission.READ_CONTACTS)
+        // La permission READ_CONTACTS est demandée en contexte, au premier envoi de
+        // message, via le lambda onEnvoyer passé à ChatScreen (voir ci-dessous).
 
         setContent {
             MaterialTheme {
@@ -99,13 +104,15 @@ class MainActivity : ComponentActivity() {
 
                 // Boucle de polling du Moniteur — une erreur réseau est avalée et
                 // relancée à l'itération suivante (1 s plus tard).
+                // CancellationException est toujours relancée (structured concurrency).
                 LaunchedEffect(Unit) {
                     while (true) {
                         try {
                             moniteurVm.rafraichir()
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            throw e
                         } catch (e: Exception) {
-                            // poll échoué : le /metrics n'est pas encore disponible ou
-                            // le serveur est arrêté — on réessaie dans 1 s
+                            // GET /metrics échoué — on réessaie dans 1 s
                         }
                         delay(1_000)
                     }
@@ -117,13 +124,23 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 selected = onglet == 0,
                                 onClick = { onglet = 0 },
-                                icon = {},
+                                icon = {
+                                    Icon(
+                                        Icons.Filled.Home,
+                                        contentDescription = stringResource(R.string.nav_chat)
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.nav_chat)) }
                             )
                             NavigationBarItem(
                                 selected = onglet == 1,
                                 onClick = { onglet = 1 },
-                                icon = {},
+                                icon = {
+                                    Icon(
+                                        Icons.Filled.Info,
+                                        contentDescription = stringResource(R.string.nav_moniteur)
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.nav_moniteur)) }
                             )
                         }
@@ -131,7 +148,17 @@ class MainActivity : ComponentActivity() {
                 ) { paddingValues ->
                     Box(Modifier.padding(paddingValues)) {
                         if (onglet == 0) {
-                            ChatScreen(chatVm, EXEMPLES)
+                            ChatScreen(
+                                vm = chatVm,
+                                onEnvoyer = { texte ->
+                                    // Première fois : demander la permission en contexte
+                                    // (après une action utilisateur — conforme aux bonnes pratiques).
+                                    if (contactPermissionDejaDemande.compareAndSet(false, true)) {
+                                        requestContactPermission.launch(Manifest.permission.READ_CONTACTS)
+                                    }
+                                    chatVm.envoyer(texte)
+                                }
+                            )
                         } else {
                             MoniteurScreen(moniteurVm)
                         }
@@ -139,14 +166,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    companion object {
-        /** Phrases d'exemple affichées comme chips dans ChatScreen. */
-        val EXEMPLES = listOf(
-            "mets un minuteur de 5 minutes",
-            "appelle Paul Maudet",
-            "itinéraire vers la gare"
-        )
     }
 }

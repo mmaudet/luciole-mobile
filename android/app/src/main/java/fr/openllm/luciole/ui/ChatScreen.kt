@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import fr.openllm.luciole.R
@@ -13,9 +14,10 @@ import fr.openllm.luciole.mains.AffichageType
 import fr.openllm.luciole.mains.Sortie
 
 @Composable
-fun ChatScreen(vm: ChatViewModel, exemples: List<String>) {
+fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
     val state by vm.state.collectAsState()
     var saisie by remember { mutableStateOf("") }
+    val exemples = stringArrayResource(R.array.exemples).toList()
     Column(Modifier.fillMaxSize().padding(12.dp)) {
         LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(state.messages) { m -> MessageCard(m) }
@@ -34,7 +36,7 @@ fun ChatScreen(vm: ChatViewModel, exemples: List<String>) {
                 placeholder = { Text(stringResource(R.string.placeholder_saisie)) }
             )
             Button(
-                onClick = { vm.envoyer(saisie); saisie = "" },
+                onClick = { onEnvoyer(saisie); saisie = "" },
                 enabled = !state.enCours,
                 modifier = Modifier.padding(start = 6.dp)
             ) { Text(stringResource(R.string.envoyer)) }

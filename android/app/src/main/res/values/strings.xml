@@ -16,4 +16,9 @@
     <string name="aucune_donnee">🔒 Aucune donnée ne quitte le téléphone</string>
     <string name="nav_chat">Chat</string>
     <string name="nav_moniteur">Moniteur</string>
+    <string-array name="exemples">
+        <item>mets un minuteur de 5 minutes</item>
+        <item>appelle Paul Maudet</item>
+        <item>itinéraire vers la gare</item>
+    </string-array>
 </resources>
