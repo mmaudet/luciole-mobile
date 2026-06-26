@@ -53,6 +53,11 @@
       "required": ["type", "requete"],
       "properties": {
         "type": { "const": "recherche" },
-        "requete": { "type": "string", "minLength": 1 } } }
+        "requete": { "type": "string", "minLength": 1 } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type", "cible"],
+      "properties": {
+        "type": { "const": "ouvrir" },
+        "cible": { "enum": ["youtube", "maps", "chrome", "appareil_photo", "parametres", "bluetooth", "wifi"] } } }
   ]
 }

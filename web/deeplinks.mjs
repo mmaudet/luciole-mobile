@@ -74,6 +74,14 @@ export function buildDeepLink(action, platform, now) {
     case 'recherche':
       return { kind: 'href', href: `https://www.qwant.com/?q=${enc(action.requete || '')}`, label: 'Lancer la recherche' };
 
+    case 'ouvrir': {
+      const WEB = { youtube: 'https://m.youtube.com', maps: 'https://maps.google.com' };
+      const href = WEB[action.cible];
+      return href
+        ? { kind: 'href', href, label: `Ouvrir ${action.cible}` }
+        : { kind: 'unsupported', label: '« Ouvrir » : démo sur le Pixel uniquement' };
+    }
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }

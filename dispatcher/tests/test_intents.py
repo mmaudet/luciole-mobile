@@ -83,3 +83,13 @@ def test_recherche_uses_web_search():
     assert "android.intent.action.WEB_SEARCH" in argv
     assert "query" in argv
     assert "tour Eiffel" in argv
+
+def test_ouvrir_app_uses_monkey_launcher():
+    argv = build_intent({"type": "ouvrir", "cible": "youtube"}, NOW)
+    assert argv[0] == "monkey"
+    assert "com.google.android.youtube" in argv
+
+def test_ouvrir_setting_uses_settings_action():
+    argv = build_intent({"type": "ouvrir", "cible": "bluetooth"}, NOW)
+    assert argv[0] == "am"
+    assert "android.settings.BLUETOOTH_SETTINGS" in argv

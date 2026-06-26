@@ -66,3 +66,7 @@ test('recherche opens Qwant with the query', () => {
   assert.match(r.href, /^https:\/\/www\.qwant\.com\/\?q=/);
   assert.match(r.href, /tour%20Eiffel|tour\+Eiffel/);
 });
+test('ouvrir youtube -> https href, bluetooth -> unsupported', () => {
+  assert.match(buildDeepLink({type:'ouvrir',cible:'youtube'}, 'android', NOW).href, /youtube\.com/);
+  assert.equal(buildDeepLink({type:'ouvrir',cible:'bluetooth'}, 'android', NOW).kind, 'unsupported');
+});
