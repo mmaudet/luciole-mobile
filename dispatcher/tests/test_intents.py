@@ -71,3 +71,9 @@ def test_minuteur_converts_minutes_to_seconds():
     assert "600" in argv          # 10 min -> 600 s
     assert "thé" in argv
     assert "true" in argv         # SKIP_UI
+
+def test_note_uses_send_text_plain():
+    argv = build_intent({"type": "note", "texte": "acheter du pain"}, NOW)
+    assert "android.intent.action.SEND" in argv
+    assert "text/plain" in argv
+    assert "acheter du pain" in argv

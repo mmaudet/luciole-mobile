@@ -84,4 +84,9 @@ def build_intent(action: dict, now: datetime) -> list[str]:
                 "--es", "android.intent.extra.alarm.MESSAGE", action.get("libelle", ""),
                 "--ez", "android.intent.extra.alarm.SKIP_UI", "true"]
 
+    if t == "note":
+        return ["am", "start", "-a", "android.intent.action.SEND",
+                "-t", "text/plain",
+                "--es", "android.intent.extra.TEXT", action["texte"]]
+
     raise ValueError(f"type d'action inconnu: {t!r}")

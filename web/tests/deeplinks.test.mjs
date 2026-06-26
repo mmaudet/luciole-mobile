@@ -54,3 +54,9 @@ test('inconnu renders a fixed text message', () => {
 test('minuteur is unsupported on web (Pixel only)', () => {
   assert.equal(buildDeepLink({type:'minuteur',duree_min:10}, 'android', NOW).kind, 'unsupported');
 });
+test('note produces a downloadable .txt', () => {
+  const r = buildDeepLink({type:'note',texte:'acheter du pain'}, 'android', NOW);
+  assert.equal(r.kind, 'download');
+  assert.equal(r.filename, 'note.txt');
+  assert.match(r.text, /acheter du pain/);
+});
