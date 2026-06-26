@@ -77,4 +77,11 @@ def build_intent(action: dict, now: datetime) -> list[str]:
         return ["am", "start", "-a", "android.intent.action.DIAL",
                 "-d", f"tel:{num}"]
 
+    if t == "minuteur":
+        secs = int(action["duree_min"]) * 60
+        return ["am", "start", "-a", "android.intent.action.SET_TIMER",
+                "--ei", "android.intent.extra.alarm.LENGTH", str(secs),
+                "--es", "android.intent.extra.alarm.MESSAGE", action.get("libelle", ""),
+                "--ez", "android.intent.extra.alarm.SKIP_UI", "true"]
+
     raise ValueError(f"type d'action inconnu: {t!r}")

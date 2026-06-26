@@ -63,3 +63,11 @@ def test_extract_phone_from_phrase():
 def test_extract_phone_none_when_no_number():
     assert extract_phone("appelle Paul") is None
     assert extract_phone("rappelle-moi à 14h") is None
+
+def test_minuteur_converts_minutes_to_seconds():
+    argv = build_intent({"type": "minuteur", "duree_min": 10, "libelle": "thé"}, NOW)
+    assert "android.intent.action.SET_TIMER" in argv
+    assert "android.intent.extra.alarm.LENGTH" in argv
+    assert "600" in argv          # 10 min -> 600 s
+    assert "thé" in argv
+    assert "true" in argv         # SKIP_UI

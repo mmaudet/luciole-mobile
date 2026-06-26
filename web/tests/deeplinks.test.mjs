@@ -51,3 +51,6 @@ test('inconnu renders a fixed text message', () => {
   assert.equal(r.kind, 'text');
   assert.match(r.text, /je ne sais pas/i);
 });
+test('minuteur is unsupported on web (Pixel only)', () => {
+  assert.equal(buildDeepLink({type:'minuteur',duree_min:10}, 'android', NOW).kind, 'unsupported');
+});

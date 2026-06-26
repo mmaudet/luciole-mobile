@@ -65,6 +65,9 @@ export function buildDeepLink(action, platform, now) {
     case 'inconnu':
       return { kind: 'text', text: "Ça, je ne sais pas encore le faire. Je peux : alarme, minuteur, agenda, SMS/e-mail, itinéraire, appel, ouvrir une app/un réglage, recherche, traduction." };
 
+    case 'minuteur':
+      return { kind: 'unsupported', label: 'Minuteur : démo sur le Pixel uniquement' };
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }

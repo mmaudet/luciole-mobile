@@ -12,6 +12,8 @@ VALID = [
     {"type": "itineraire", "destination": "Gare de Lyon, Paris", "mode": "transit"},
     {"type": "appel", "destinataire": ""},
     {"type": "inconnu"},
+    {"type": "minuteur", "duree_min": 10, "libelle": "thé"},
+    {"type": "minuteur", "duree_min": 5},
 ]
 INVALID = [
     {"type": "alarme", "heure": "26:00", "libelle": "x"},      # bad hour
@@ -20,6 +22,8 @@ INVALID = [
     {"type": "agenda", "titre": "x"},                            # missing quand
     {"type": "inconnu", "x": 1},                                 # inconnu n'accepte aucun champ
     {"type": "appel", "destinataire": "x", "extra": 1},          # additionalProperties
+    {"type": "minuteur", "duree_min": 0},                        # < minimum
+    {"type": "minuteur"},                                         # duree_min manquant
 ]
 
 @pytest.mark.parametrize("obj", VALID)
