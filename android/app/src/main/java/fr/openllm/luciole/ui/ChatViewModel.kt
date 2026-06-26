@@ -44,7 +44,7 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 val action = cerveau.suggest(phrase)
-                val sortie = Mains.traiter(action, phrase, resoudreContact)
+                val sortie = Mains.traiter(action, phrase, resoudreContact = resoudreContact)
                 _state.update { it.copy(
                     messages = it.messages + Message(Role.LUCIOLE, texte = "", sortie = sortie),
                     enCours = false

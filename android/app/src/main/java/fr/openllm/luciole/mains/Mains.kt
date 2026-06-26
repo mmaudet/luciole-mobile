@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.AlarmClock
 import android.provider.CalendarContract
+import fr.openllm.luciole.R
 import fr.openllm.luciole.model.*
 
 data class IntentSpec(val action: String, val data: String? = null, val extras: Map<String, Any> = emptyMap())
@@ -16,7 +17,12 @@ sealed interface Sortie {
 }
 
 object Mains {
-    fun traiter(action: Action, phrase: String, resoudreContact: (String) -> String?): Sortie = when (action) {
+    fun traiter(
+        action: Action,
+        phrase: String,
+        now: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+        resoudreContact: (String) -> String?,
+    ): Sortie = when (action) {
         is Action.Appel -> {
             val target = Extraction.callTarget(phrase)
             val num = Extraction.extractPhone(phrase) ?: resoudreContact(target)
@@ -40,6 +46,11 @@ object Mains {
             extras = buildMap {
                 put(CalendarContract.Events.TITLE, action.titre)
                 action.lieu?.let { put(CalendarContract.Events.EVENT_LOCATION, it) }
+                val epochMs = DatetimeFr.resolveEpochMs(action.quand, now)
+                if (epochMs != null) {
+                    put(CalendarContract.EXTRA_EVENT_BEGIN_TIME, epochMs)
+                    put(CalendarContract.EXTRA_EVENT_END_TIME, epochMs + 3_600_000L)
+                }
             }))
         is Action.Message -> when (action.canal) {
             Canal.EMAIL -> Sortie.Lancer(IntentSpec(Intent.ACTION_SENDTO, "mailto:",
@@ -75,13 +86,18 @@ object Mains {
             spec.data?.let { data = Uri.parse(it) }
             spec.extras.forEach { (k, v) ->
                 when (v) {
-                    is Int -> putExtra(k, v)
+                    is Int    -> putExtra(k, v)
+                    is Long   -> putExtra(k, v)
                     is String -> putExtra(k, v)
                     else -> android.util.Log.w("Luciole", "extra ignoré: $k=$v")
                 }
             }
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        startActivity(intent)
+        try {
+            startActivity(intent)
+        } catch (e: android.content.ActivityNotFoundException) {
+            android.widget.Toast.makeText(this, R.string.aucune_app, android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 }

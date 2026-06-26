@@ -1,7 +1,11 @@
 package fr.openllm.luciole.mains
 import fr.openllm.luciole.model.*
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 class MainsTest {
     @Test fun appelAvecNumeroDansLaPhrase() {
         val s = Mains.traiter(Action.Appel("ignoré"), "appelle le 06 12 34 56 78") { null }
@@ -97,5 +101,41 @@ class MainsTest {
     @Test fun inconnu() {
         val s = Mains.traiter(Action.Inconnu, "bla bla incompréhensible") { null }
         assertEquals(Sortie.Afficher(AffichageType.INCONNU, ""), s)
+    }
+
+    // --- Agenda avec date/heure résolue ---
+
+    @Test fun agendaAvecQuandResolvable() {
+        // now fixé : samedi 27 juin 2026 09:00 ; quand = "demain 10:00" → 28 juin 2026 10:00
+        val now = LocalDateTime.of(2026, 6, 27, 9, 0)
+        val epochAttendu = LocalDateTime.of(2026, 6, 28, 10, 0)
+            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val s = Mains.traiter(Action.Agenda("Réunion", "demain 10:00", null), "réunion demain", now) { null }
+        assertTrue(s is Sortie.Lancer)
+        val extras = s.spec.extras
+        assertEquals("Réunion", extras["title"])
+        // Clés CalendarContract.EXTRA_EVENT_BEGIN_TIME / END_TIME = "beginTime" / "endTime"
+        assertEquals(epochAttendu, extras["beginTime"] as? Long)
+        assertEquals(epochAttendu + 3_600_000L, extras["endTime"] as? Long)
+    }
+
+    @Test fun agendaQuandVideResteTitleOnly() {
+        // quand non parseable → pas d'extras begin/end
+        val s = Mains.traiter(Action.Agenda("Note", "", null), "agenda note") { null }
+        assertTrue(s is Sortie.Lancer)
+        val extras = s.spec.extras
+        assertEquals("Note", extras["title"])
+        assertFalse(extras.containsKey("beginTime"))
+        assertFalse(extras.containsKey("endTime"))
+    }
+
+    @Test fun agendaQuandNonParseable() {
+        // quand garbage → pas d'extras begin/end
+        val s = Mains.traiter(Action.Agenda("Dentiste", "garbage xyz", null), "agenda dentiste") { null }
+        assertTrue(s is Sortie.Lancer)
+        val extras = s.spec.extras
+        assertEquals("Dentiste", extras["title"])
+        assertFalse(extras.containsKey("beginTime"))
+        assertFalse(extras.containsKey("endTime"))
     }
 }

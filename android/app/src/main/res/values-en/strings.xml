@@ -7,6 +7,7 @@
     <string name="serveur_injoignable">Server unreachable — try again.</string>
     <string name="contact_introuvable">Contact not found: %1$s</string>
     <string name="inconnu">I can\'t do that.</string>
+    <string name="aucune_app">No app for this action.</string>
     <string name="note_prefixe">Note: %1$s</string>
     <string name="moniteur_titre">🔦 the Pixel is serving tokens</string>
     <string name="stat_tokens">Tokens served</string>
