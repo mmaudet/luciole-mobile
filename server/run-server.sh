@@ -24,9 +24,11 @@ THREADS="${THREADS:-6}"        # number of inference threads (6 fast cores)
 CPU_MASK="${CPU_MASK:-FC}"     # 0xFC = cpu2..7; skips the 2 little cores (cpu0-1)
 PARALLEL="${PARALLEL:-1}"      # concurrent request slots (raise with CTX for the hands-on)
 CTX="${CTX:-2048}"            # total context (split across PARALLEL slots)
+# --metrics : expose /metrics pour le Moniteur de l'app
 exec llama-server -m "$MODEL" \
   --host 0.0.0.0 --port 8080 \
   --grammar-file "$GRAMMAR" \
   --threads "$THREADS" --threads-batch "$THREADS" --cpu-mask "$CPU_MASK" --mlock \
   --parallel "$PARALLEL" --ctx-size "$CTX" \
+  --metrics \
   --path "$HOME/luciole-mobile/web"   # sert le client participant + system_prompt.txt à /

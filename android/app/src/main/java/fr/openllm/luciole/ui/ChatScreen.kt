@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import fr.openllm.luciole.R
 import fr.openllm.luciole.mains.AffichageType
 import fr.openllm.luciole.mains.Sortie
 
@@ -29,13 +31,13 @@ fun ChatScreen(vm: ChatViewModel, exemples: List<String>) {
                 value = saisie,
                 onValueChange = { saisie = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Dites une phrase…") }
+                placeholder = { Text(stringResource(R.string.placeholder_saisie)) }
             )
             Button(
                 onClick = { vm.envoyer(saisie); saisie = "" },
                 enabled = !state.enCours,
                 modifier = Modifier.padding(start = 6.dp)
-            ) { Text("Envoyer") }
+            ) { Text(stringResource(R.string.envoyer)) }
         }
     }
 }
@@ -43,14 +45,14 @@ fun ChatScreen(vm: ChatViewModel, exemples: List<String>) {
 @Composable
 private fun MessageCard(m: Message) {
     val texte = when (val s = m.sortie) {
-        is Sortie.Lancer -> "Action : ${s.spec.action.substringAfterLast('.')}"
+        is Sortie.Lancer -> stringResource(R.string.action_prefixe, s.spec.action.substringAfterLast('.'))
         is Sortie.Afficher -> when (s.type) {
-            AffichageType.NOTE -> "Note : ${s.texte}"
+            AffichageType.NOTE -> stringResource(R.string.note_prefixe, s.texte)
             AffichageType.TRADUCTION -> s.texte
-            AffichageType.INCONNU -> "Je ne sais pas faire ça."
+            AffichageType.INCONNU -> stringResource(R.string.inconnu)
         }
-        is Sortie.ContactIntrouvable -> "Contact introuvable : ${s.nom}"
-        null -> if (m.texte == "serveur_indisponible") "Serveur injoignable — réessayer." else m.texte
+        is Sortie.ContactIntrouvable -> stringResource(R.string.contact_introuvable, s.nom)
+        null -> if (m.texte == "serveur_indisponible") stringResource(R.string.serveur_injoignable) else m.texte
     }
     Card(Modifier.fillMaxWidth()) { Text(texte, Modifier.padding(12.dp)) }
 }

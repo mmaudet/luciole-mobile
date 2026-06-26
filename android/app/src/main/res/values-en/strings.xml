@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Luciole</string>
+    <string name="envoyer">Send</string>
+    <string name="placeholder_saisie">Say something…</string>
+    <string name="action_prefixe">Action: %1$s</string>
+    <string name="serveur_injoignable">Server unreachable — try again.</string>
+    <string name="contact_introuvable">Contact not found: %1$s</string>
+    <string name="inconnu">I can\'t do that.</string>
+    <string name="note_prefixe">Note: %1$s</string>
+    <string name="moniteur_titre">🔦 the Pixel is serving tokens</string>
+    <string name="stat_tokens">Tokens served</string>
+    <string name="stat_debit">Tokens/s</string>
+    <string name="stat_requetes">In-flight requests</string>
+    <string name="pas_de_cloud">Cloud</string>
+    <string name="aucune_donnee">🔒 No data leaves the phone</string>
+</resources>

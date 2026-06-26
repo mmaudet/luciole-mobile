@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
  * au lieu de null (comportement du stub JVM avec isReturnDefaultValues=true).
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = [34])
 class MainsUriTest {
 
     @Test fun itineraireUriComplete() {
