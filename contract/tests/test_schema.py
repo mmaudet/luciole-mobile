@@ -16,6 +16,8 @@ VALID = [
     {"type": "minuteur", "duree_min": 5},
     {"type": "note", "texte": "acheter du pain"},
     {"type": "recherche", "requete": "capitale de l'Australie"},
+    {"type": "ouvrir", "cible": "youtube"},
+    {"type": "ouvrir", "cible": "bluetooth"},
 ]
 INVALID = [
     {"type": "alarme", "heure": "26:00", "libelle": "x"},      # bad hour
@@ -30,6 +32,8 @@ INVALID = [
     {"type": "note"},                                            # texte manquant
     {"type": "recherche", "requete": ""},                        # minLength 1
     {"type": "recherche"},                                       # requete manquant
+    {"type": "ouvrir", "cible": "spotify"},                      # hors enum
+    {"type": "ouvrir"},                                          # cible manquant
 ]
 
 @pytest.mark.parametrize("obj", VALID)

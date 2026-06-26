@@ -7,6 +7,20 @@ from datetime_fr import resolve_datetime
 
 _PHONE_RE = re.compile(r"\+?\d[\d \-. ]{4,}\d")
 
+# Jeu de départ — figé/complété on-device (cf. plan Task 8). Lancement par package
+# (sans connaître l'activité) via `monkey`. Réglages via android.settings.*.
+_APP_PKG = {
+    "youtube": "com.google.android.youtube",
+    "maps": "com.google.android.apps.maps",
+    "chrome": "com.android.chrome",
+    "appareil_photo": "com.google.android.GoogleCamera",
+}
+_SETTINGS = {
+    "parametres": "android.settings.SETTINGS",
+    "bluetooth": "android.settings.BLUETOOTH_SETTINGS",
+    "wifi": "android.settings.WIFI_SETTINGS",
+}
+
 MESSAGE_INCONNU = (
     "Ça, je ne sais pas encore le faire. Je peux : mettre une alarme ou un minuteur, "
     "créer un événement, écrire un SMS ou un e-mail, lancer un itinéraire, appeler un "
@@ -92,5 +106,13 @@ def build_intent(action: dict, now: datetime) -> list[str]:
     if t == "recherche":
         return ["am", "start", "-a", "android.intent.action.WEB_SEARCH",
                 "--es", "query", action["requete"]]
+
+    if t == "ouvrir":
+        c = action["cible"]
+        if c in _SETTINGS:
+            return ["am", "start", "-a", _SETTINGS[c]]
+        if c in _APP_PKG:
+            return ["monkey", "-p", _APP_PKG[c], "-c", "android.intent.category.LAUNCHER", "1"]
+        raise ValueError(f"cible inconnue: {c!r}")
 
     raise ValueError(f"type d'action inconnu: {t!r}")
