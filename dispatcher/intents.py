@@ -7,6 +7,21 @@ from datetime_fr import resolve_datetime
 
 _PHONE_RE = re.compile(r"\+?\d[\d \-. ]{4,}\d")
 
+MESSAGE_INCONNU = (
+    "Ça, je ne sais pas encore le faire. Je peux : mettre une alarme ou un minuteur, "
+    "créer un événement, écrire un SMS ou un e-mail, lancer un itinéraire, appeler un "
+    "numéro, ouvrir une app ou un réglage, faire une recherche, ou traduire."
+)
+
+def display_text(action: dict) -> str | None:
+    """Texte à afficher pour les actions display-only (pas d'`am start`). Sinon None."""
+    t = action.get("type")
+    if t == "inconnu":
+        return MESSAGE_INCONNU
+    if t == "traduction":
+        return action.get("resultat", "")
+    return None
+
 def extract_phone(text: str) -> str | None:
     """Most digit-rich phone-like run in `text`, as digits (keeping a leading +), else None.
     A 1B model is unreliable at copying a 10-digit number, so for "appel" we take the number

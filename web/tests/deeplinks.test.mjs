@@ -46,3 +46,8 @@ test('extractPhone returns null when no real number', () => {
   assert.equal(extractPhone('appelle Paul'), null);
   assert.equal(extractPhone('rappelle-moi à 14h'), null);
 });
+test('inconnu renders a fixed text message', () => {
+  const r = buildDeepLink({type:'inconnu'}, 'android', NOW);
+  assert.equal(r.kind, 'text');
+  assert.match(r.text, /je ne sais pas/i);
+});

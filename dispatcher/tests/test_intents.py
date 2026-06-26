@@ -40,10 +40,18 @@ def test_agenda_resolves_time():
     # 2026-06-26 10:00 local -> beginTime present as epoch ms string
     assert "beginTime" in argv
 
-def test_unknown_type():
+def test_unknown_type_still_raises():
     import pytest
     with pytest.raises(ValueError):
-        build_intent({"type": "inconnu"}, NOW)
+        build_intent({"type": "wat"}, NOW)
+
+def test_display_text_inconnu():
+    from intents import display_text, MESSAGE_INCONNU
+    assert display_text({"type": "inconnu"}) == MESSAGE_INCONNU
+
+def test_display_text_none_for_fireable():
+    from intents import display_text
+    assert display_text({"type": "alarme", "heure": "8:00", "libelle": "x"}) is None
 
 def test_extract_phone_from_phrase():
     assert extract_phone("appelle le 07 11 22 33 44") == "0711223344"
