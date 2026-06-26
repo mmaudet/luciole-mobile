@@ -26,4 +26,4 @@ exec llama-server -m "$MODEL" \
   --grammar-file "$GRAMMAR" \
   --threads "$THREADS" --threads-batch "$THREADS" --cpu-mask "$CPU_MASK" --mlock \
   --parallel "$PARALLEL" --ctx-size "$CTX" \
-  --path "$HOME/luciole-mobile/web"   # serve the participant client at /
+  --path "$HOME/luciole-mobile/web"   # sert le client participant + system_prompt.txt à /

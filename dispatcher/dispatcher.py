@@ -11,7 +11,7 @@ from datetime import datetime
 from intents import build_intent, extract_phone
 
 ROOT = pathlib.Path(__file__).parents[1]
-SYSTEM = (ROOT / "server/system_prompt.txt").read_text()
+SYSTEM = (ROOT / "web/system_prompt.txt").read_text()
 API = "http://127.0.0.1:8080/v1/chat/completions"
 
 VALIDATOR = None
@@ -21,10 +21,9 @@ if os.environ.get("DISPATCH_VALIDATE"):
         json.loads((ROOT / "contract/actions.schema.json").read_text()))
 
 def ask_model(phrase: str) -> dict:
-    now = datetime.now().strftime("%Y-%m-%d %H:%M (%A)")
     payload = {
         "messages": [
-            {"role": "system", "content": SYSTEM.replace("{now}", now)},
+            {"role": "system", "content": SYSTEM},
             {"role": "user", "content": phrase},
         ],
         "temperature": 0.0,

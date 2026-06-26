@@ -22,8 +22,7 @@ from jsonschema import Draft202012Validator
 
 SCHEMA = json.loads((ROOT / "contract/actions.schema.json").read_text())
 VALIDATOR = Draft202012Validator(SCHEMA)
-SYSTEM = (ROOT / "server/system_prompt.txt").read_text().replace(
-    "{now}", datetime.now().strftime("%Y-%m-%d %H:%M (%A)"))
+SYSTEM = (ROOT / "web/system_prompt.txt").read_text()
 API = "http://127.0.0.1:8080/v1/chat/completions"
 
 # (phrase, expected type, expected canal or None)
