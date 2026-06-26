@@ -5,15 +5,16 @@
 # (cpu2-7, mask 0xFC) and mlock the model in RAM. On-device this took generation from
 # ~1.5 to ~14 tok/s (the kernel was otherwise scheduling threads onto the 2 little cores).
 #
-# Latency note: the system prompt is ~730 tokens. The KV cache makes the SECOND and later
-# requests fast (~2.4 s); the first request after start is ~14 s — pre-warm before a demo
-# (send one throwaway request). The prompt is intentionally time-invariant (no {now}) so the
-# cached prefix stays valid across minutes.
+# Latency note: the system prompt is ~1.3k tokens (11 action rules + examples). The KV cache
+# makes the SECOND and later requests fast (~2.4 s); the first request after start is ~14 s —
+# pre-warm before a demo (send one throwaway request). The prompt is intentionally
+# time-invariant (no {now}) so the cached prefix stays valid across minutes.
 #
-# Concurrency note: each --parallel slot gets ctx-size/parallel tokens. With a ~730-token
-# prompt you need >=~1100 tokens/slot, so keep CTX/PARALLEL >= ~1100. Default is single-slot
-# (validated). For the participant hands-on raise PARALLEL and CTX together, e.g.
-#   PARALLEL=2 CTX=4096 bash server/run-server.sh   # 2 concurrent, 2048 tokens/slot
+# Concurrency note: each --parallel slot gets ctx-size/parallel tokens. With a ~1.3k-token
+# prompt + generation (256) + headroom, keep each slot >= ~2048 tokens (CTX/PARALLEL >= 2048).
+# Default is single-slot (validated). For the participant hands-on raise PARALLEL and CTX
+# together, e.g.
+#   PARALLEL=2 CTX=4096 bash server/run-server.sh   # 2 concurrent, 2048 tokens/slot (safe)
 set -euo pipefail
 MODEL="${MODEL:-$HOME/models/Luciole-1B-SFT-Q4_K_M.gguf}"
 GRAMMAR="${GRAMMAR:-$HOME/luciole-mobile/contract/actions.gbnf}"

@@ -60,7 +60,7 @@ Android tue les process en arrière-plan. Pour que le serveur tienne :
 - **Pré-chauffe web** : ouvrir une fois `http://<IP>:8080/` et lancer **une** requête (le client web
   envoie un prompt légèrement différent → réamorce le cache une fois, ~14 s, puis ~2-3 s).
 - **Concurrence** : pour plusieurs requêtes simultanées, relancer le serveur avec plus de slots —
-  `PARALLEL=2 CTX=4096 bash ~/luciole-mobile/server/run-server.sh` (garder CTX/PARALLEL ≥ ~1100).
+  `PARALLEL=2 CTX=4096 bash ~/luciole-mobile/server/run-server.sh` (garder chaque slot ≥ ~2048 tokens (CTX/PARALLEL ≥ 2048 ; le prompt fait ~1,3k tokens)).
 - Participants : scanner les 2 QR → page → taper une phrase → **deep-link adapté à l'OS**
   (iOS : maps.apple.com / `sms:&body=` ; Android : `geo:` / `sms:?body=` ; `.ics` pour l'agenda).
 - **L'alarme n'a pas de bouton côté web** (aucun URI universel pour SET_ALARM) : c'est *justement*
@@ -80,7 +80,7 @@ Android tue les process en arrière-plan. Pour que le serveur tienne :
 **Démo des nouvelles actions** (toutes sauf `recherche` marchent en mode avion) :
 - minuteur : « minuteur de 10 minutes pour le thé » (démarre tout de suite)
 - note : « note d'acheter du pain » (feuille de partage)
-- recherche : « c'est quoi la capitale de l'Australie » (**ouvre Qwant — nécessite le réseau** ; à réserver au hands-on en ligne)
+- recherche : « c'est quoi la capitale de l'Australie » — sur le Pixel, `WEB_SEARCH` ouvre le **moteur par défaut du téléphone** (ex. Google sur un Pixel stock) ; **Qwant** est le chemin **web** (participants). Nécessite le réseau.
 - ouvrir : « ouvre YouTube » / « ouvre les réglages Bluetooth »
 - traduction : « traduis chat en anglais » (**100 % on-device** : Luciole écrit la traduction, marche hors-ligne)
 - hors-catalogue : « raconte-moi une blague » → message « je ne sais pas (encore) faire ça »

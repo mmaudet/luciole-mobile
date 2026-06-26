@@ -3,7 +3,10 @@ import { buildDeepLink, extractPhone } from './deeplinks.mjs';
 
 // Source unique du prompt : web/system_prompt.txt (servie par llama-server --path web).
 // Envoyée VERBATIM — time-invariant (pas de {now}) pour garder le préfixe KV-cache valide.
-const SYSTEM = fetch('system_prompt.txt').then(r => r.text());
+const SYSTEM = fetch('system_prompt.txt').then(r => {
+  if (!r.ok) throw new Error('prompt ' + r.status);
+  return r.text();
+});
 
 function platform() {
   return /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'ios' : 'android';
