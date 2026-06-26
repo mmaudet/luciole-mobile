@@ -43,6 +43,7 @@ class CerveauServeur(
             .build()
         try {
             client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) throw java.io.IOException("HTTP ${resp.code}")
                 val txt = resp.body?.string().orEmpty()
                 val content = json.parseToJsonElement(txt)
                     .jsonObject["choices"]?.jsonArray?.get(0)

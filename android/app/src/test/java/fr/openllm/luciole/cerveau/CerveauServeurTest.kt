@@ -26,4 +26,10 @@ class CerveauServeurTest {
         val c = CerveauServeur("http://127.0.0.1:1", OkHttpClient())
         assertFailsWith<CerveauIndisponible> { c.suggest("bonjour") }
     }
+
+    @Test fun reponse5xxLeveCerveauIndisponible() = runTest {
+        server.enqueue(MockResponse().setResponseCode(500))
+        val c = CerveauServeur(server.url("/").toString().trimEnd('/'), OkHttpClient())
+        assertFailsWith<CerveauIndisponible> { c.suggest("bonjour") }
+    }
 }

@@ -102,10 +102,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Boucle de polling du Moniteur — une erreur réseau est avalée et
-                // relancée à l'itération suivante (1 s plus tard).
+                // Boucle de polling du Moniteur — active uniquement sur l'onglet Moniteur (index 1).
+                // Une erreur réseau est avalée et relancée à l'itération suivante (1 s plus tard).
                 // CancellationException est toujours relancée (structured concurrency).
-                LaunchedEffect(Unit) {
+                LaunchedEffect(onglet) {
+                    if (onglet != 1) return@LaunchedEffect
                     while (true) {
                         try {
                             moniteurVm.rafraichir()
