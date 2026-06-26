@@ -21,3 +21,11 @@ __pycache__/
 
 # QR codes — regenerated on-site with real SSID/pass/IP values
 staging/*.png
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
