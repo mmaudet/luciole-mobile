@@ -1,6 +1,9 @@
 # Documentation de conception & d'implémentation (specs, plans) — conservée en local, non versionnée
 docs/
 
+# Scratch superpowers (ledger SDD, briefs, paquets de revue, maquettes brainstorm) — local
+.superpowers/
+
 # Modèles (volumineux — jamais committés)
 *.gguf
 models/
