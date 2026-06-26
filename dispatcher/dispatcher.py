@@ -8,7 +8,7 @@ Optional env switches:
 """
 import json, os, pathlib, subprocess, sys, urllib.request
 from datetime import datetime
-from intents import build_intent, extract_phone
+from intents import build_intent, extract_phone, display_text
 
 ROOT = pathlib.Path(__file__).parents[1]
 SYSTEM = (ROOT / "web/system_prompt.txt").read_text()
@@ -44,6 +44,11 @@ def main():
         VALIDATOR.validate(action)             # defense in depth: reject off-grammar output
     if action.get("type") == "appel":          # trust the phrase's digits, not the 1B's copy
         action["destinataire"] = extract_phone(phrase) or action.get("destinataire", "")
+    msg = display_text(action)
+    if msg is not None:
+        print("ACTION:", json.dumps(action, ensure_ascii=False))
+        print("TEXTE:", msg)
+        return
     argv = build_intent(action, datetime.now())
     print("ACTION:", json.dumps(action, ensure_ascii=False))
     print("INTENT:", " ".join(argv))

@@ -11,13 +11,14 @@ VALID = [
     {"type": "message", "canal": "sms", "corps": "Je serai en retard."},
     {"type": "itineraire", "destination": "Gare de Lyon, Paris", "mode": "transit"},
     {"type": "appel", "destinataire": ""},
+    {"type": "inconnu"},
 ]
 INVALID = [
     {"type": "alarme", "heure": "26:00", "libelle": "x"},      # bad hour
     {"type": "alarme", "libelle": "x"},                          # missing heure
     {"type": "message", "canal": "fax", "corps": "x"},          # bad canal
     {"type": "agenda", "titre": "x"},                            # missing quand
-    {"type": "inconnu", "x": 1},                                 # not in repertoire
+    {"type": "inconnu", "x": 1},                                 # inconnu n'accepte aucun champ
     {"type": "appel", "destinataire": "x", "extra": 1},          # additionalProperties
 ]
 

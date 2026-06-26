@@ -33,6 +33,10 @@
       "required": ["type", "destinataire"],
       "properties": {
         "type": { "const": "appel" },
-        "destinataire": { "type": "string" } } }
+        "destinataire": { "type": "string" } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "inconnu" } } }
   ]
 }

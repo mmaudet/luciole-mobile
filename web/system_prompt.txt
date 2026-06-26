@@ -14,6 +14,7 @@ Règles de choix de l'action :
 - "itineraire" : se déplacer vers un lieu — "itinéraire", "aller à", "route vers", "comment aller à".
   Champs : destination, mode (optionnel).
 - "appel" : appeler ou téléphoner à un numéro ou un contact. Champ : destinataire (chiffres uniquement, sans espaces).
+- "inconnu" : AUCUNE autre action ne convient (météo en direct, blague, calcul, discussion libre, app non listée…). Aucun champ. Ne force jamais une action au hasard : en cas de doute, choisis "inconnu".
 
 Pour le champ "quand", n'utilise QUE ces formes : "HH:MM", "demain HH:MM",
 "après-demain HH:MM", "<jour de la semaine> HH:MM", "dans N minutes", "dans N heures".
@@ -40,3 +41,6 @@ JSON : {"type":"itineraire","destination":"Gare de Lyon, Paris","mode":"transit"
 
 Phrase : appelle le 06 12 34 56 78
 JSON : {"type":"appel","destinataire":"0612345678"}
+
+Phrase : raconte-moi une blague
+JSON : {"type":"inconnu"}

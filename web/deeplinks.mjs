@@ -62,6 +62,9 @@ export function buildDeepLink(action, platform, now) {
       return { kind: 'ics', filename: 'evenement.ics', text, label: 'Ajouter au calendrier' };
     }
 
+    case 'inconnu':
+      return { kind: 'text', text: "Ça, je ne sais pas encore le faire. Je peux : alarme, minuteur, agenda, SMS/e-mail, itinéraire, appel, ouvrir une app/un réglage, recherche, traduction." };
+
     default:
       return { kind: 'unsupported', label: `Action inconnue: ${action.type}` };
   }

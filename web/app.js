@@ -43,6 +43,10 @@ function render(action) {
     a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/calendar' }));
     a.download = link.filename; a.textContent = link.label;
     out.appendChild(a);
+  } else if (link.kind === 'text') {
+    const p = document.createElement('p');
+    p.textContent = link.text;
+    out.appendChild(p);
   } else {
     const p = document.createElement('p');
     p.className = 'muted'; p.textContent = link.label;
