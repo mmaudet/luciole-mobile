@@ -45,7 +45,7 @@ CASES = [
     ("ouvre YouTube",                                            "ouvrir",     None),
     ("ouvre les réglages Bluetooth",                            "ouvrir",     None),
     ("traduis bonjour le monde en anglais",                     "traduction", None),
-    ("traduis chat en anglais",                                 "traduction", None),
+    ("traduis le chien dort en anglais",                        "traduction", None),
     ("raconte-moi une blague",                                   "inconnu",    None),
     ("raconte-moi une histoire",                                "inconnu",    None),
 ]
