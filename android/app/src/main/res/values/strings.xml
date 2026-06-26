@@ -14,4 +14,6 @@
     <string name="stat_requetes">Requêtes en cours</string>
     <string name="pas_de_cloud">Cloud</string>
     <string name="aucune_donnee">🔒 Aucune donnée ne quitte le téléphone</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_moniteur">Moniteur</string>
 </resources>

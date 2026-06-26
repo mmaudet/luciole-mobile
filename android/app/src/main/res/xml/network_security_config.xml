@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Autorise le trafic HTTP en clair uniquement vers localhost (127.0.0.1 + ::1).
+    Le serveur llama-server tourne localement sur le même appareil — aucune donnée
+    ne transite vers l'extérieur.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

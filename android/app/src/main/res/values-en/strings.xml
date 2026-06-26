@@ -14,4 +14,6 @@
     <string name="stat_requetes">In-flight requests</string>
     <string name="pas_de_cloud">Cloud</string>
     <string name="aucune_donnee">🔒 No data leaves the phone</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_moniteur">Monitor</string>
 </resources>
