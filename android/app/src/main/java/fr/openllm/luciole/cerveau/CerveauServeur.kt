@@ -5,9 +5,13 @@ import fr.openllm.luciole.model.ActionJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,22 +23,20 @@ class CerveauServeur(
 ) : Cerveau {
 
     private val jsonMedia = "application/json".toMediaType()
-    private val json = Json { ignoreUnknownKeys = true }
+
+    companion object {
+        private val json = Json { ignoreUnknownKeys = true }
+    }
 
     override suspend fun suggest(phrase: String): Action = withContext(Dispatchers.IO) {
-        val systemEscaped = SystemPrompt.FR
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-        val phraseEscaped = phrase
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-        val body = """{"temperature":0,"stream":false,"messages":[{"role":"system","content":"$systemEscaped"},{"role":"user","content":"$phraseEscaped"}]}"""
+        val body = buildJsonObject {
+            put("temperature", 0)
+            put("stream", false)
+            putJsonArray("messages") {
+                addJsonObject { put("role", "system"); put("content", SystemPrompt.FR) }
+                addJsonObject { put("role", "user"); put("content", phrase) }
+            }
+        }.toString()
         val req = Request.Builder()
             .url("$baseUrl/v1/chat/completions")
             .post(body.toRequestBody(jsonMedia))
@@ -48,8 +50,6 @@ class CerveauServeur(
                     ?.jsonPrimitive?.content.orEmpty()
                 ActionJson.parse(content)
             }
-        } catch (e: CerveauIndisponible) {
-            throw e
         } catch (e: Exception) {
             throw CerveauIndisponible(e)
         }
