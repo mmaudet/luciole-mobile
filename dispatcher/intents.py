@@ -89,4 +89,8 @@ def build_intent(action: dict, now: datetime) -> list[str]:
                 "-t", "text/plain",
                 "--es", "android.intent.extra.TEXT", action["texte"]]
 
+    if t == "recherche":
+        return ["am", "start", "-a", "android.intent.action.WEB_SEARCH",
+                "--es", "query", action["requete"]]
+
     raise ValueError(f"type d'action inconnu: {t!r}")
