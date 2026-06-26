@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.AlarmClock
+import android.provider.CalendarContract
 import fr.openllm.luciole.model.*
 
 data class IntentSpec(val action: String, val data: String? = null, val extras: Map<String, Any> = emptyMap())
@@ -37,8 +38,8 @@ object Mains {
         is Action.Agenda -> Sortie.Lancer(IntentSpec(Intent.ACTION_INSERT,
             "content://com.android.calendar/events",
             extras = buildMap {
-                put("title", action.titre)
-                action.lieu?.let { put("eventLocation", it) }
+                put(CalendarContract.Events.TITLE, action.titre)
+                action.lieu?.let { put(CalendarContract.Events.EVENT_LOCATION, it) }
             }))
         is Action.Message -> when (action.canal) {
             Canal.EMAIL -> Sortie.Lancer(IntentSpec(Intent.ACTION_SENDTO, "mailto:",
@@ -76,7 +77,7 @@ object Mains {
                 when (v) {
                     is Int -> putExtra(k, v)
                     is String -> putExtra(k, v)
-                    else -> {}
+                    else -> android.util.Log.w("Luciole", "extra ignoré: $k=$v")
                 }
             }
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
