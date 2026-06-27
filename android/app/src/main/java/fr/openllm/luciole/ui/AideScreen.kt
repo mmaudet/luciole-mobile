@@ -5,6 +5,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +26,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +71,8 @@ fun AideScreen(
 ) {
     val cols = if (expanded) 2 else 3
     val chunks = GABARITS.chunked(cols)
+    // Gabarit sélectionné — par défaut « itinéraire » (la carte vedette d'origine).
+    var selectionne by remember { mutableStateOf(GABARITS.first { it.iconKey == "itineraire" }) }
 
     Column(modifier.background(Fond).verticalScroll(rememberScrollState())) {
 
@@ -105,7 +113,8 @@ fun AideScreen(
                         GabaritChip(
                             g = g,
                             expanded = expanded,
-                            onClick = { onInserer(g.texte, g.placeholder) },
+                            selected = g == selectionne,
+                            onClick = { selectionne = g },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -119,6 +128,7 @@ fun AideScreen(
 
         // ── Featured card ─────────────────────────────────────────────────────
         FeaturedCard(
+            g = selectionne,
             onInserer = onInserer,
             modifier = Modifier
                 .padding(horizontal = 15.dp)
@@ -131,6 +141,7 @@ fun AideScreen(
 private fun GabaritChip(
     g: Gabarit,
     expanded: Boolean,
+    selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -138,8 +149,12 @@ private fun GabaritChip(
     Box(
         modifier
             .clip(RoundedCornerShape(13.dp))
-            .background(Surface)
-            .border(1.dp, Bordure, RoundedCornerShape(13.dp))
+            .background(if (selected) BleuClair else Surface)
+            .border(
+                width = if (selected) 1.5.dp else 1.dp,
+                color = if (selected) Bleu else Bordure,
+                shape = RoundedCornerShape(13.dp),
+            )
             .clickable(onClick = onClick)
             .padding(11.dp),
     ) {
@@ -172,11 +187,19 @@ private fun GabaritChip(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FeaturedCard(
+    g: Gabarit,
     onInserer: (String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val label = stringResource(g.labelRes).substringAfter(' ')
+    // Découpe le texte du gabarit autour de l'entité (placeholder) à surligner.
+    val idx = g.texte.indexOf(g.placeholder)
+    val prefixe = (if (idx >= 0) g.texte.substring(0, idx) else g.texte).trim()
+    val suffixe = (if (idx >= 0) g.texte.substring(idx + g.placeholder.length) else "").trim()
+
     Column(
         modifier
             .fillMaxWidth()
@@ -186,37 +209,49 @@ private fun FeaturedCard(
             .padding(15.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        // Label catégorie
+        // Libellé de l'action sélectionnée
         Text(
-            stringResource(R.string.act_itineraire).substringAfter(' ').uppercase(),
+            label.uppercase(),
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = Bleu,
             letterSpacing = 1.1.sp,
         )
 
-        // Ligne avec entité surlignée
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        // Texte du gabarit avec l'entité (placeholder) surlignée
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(
-                stringResource(R.string.aide_feat_pre),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Encre,
-            )
+            if (prefixe.isNotEmpty()) {
+                Text(
+                    prefixe,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Encre,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                )
+            }
             Box(
                 Modifier
+                    .align(Alignment.CenterVertically)
                     .clip(RoundedCornerShape(6.dp))
                     .background(BleuClair)
                     .border(1.dp, BleuBordure, RoundedCornerShape(6.dp))
                     .padding(horizontal = 7.dp, vertical = 2.dp),
             ) {
                 Text(
-                    stringResource(R.string.aide_feat_ent),
+                    g.placeholder,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Bleu,
+                )
+            }
+            if (suffixe.isNotEmpty()) {
+                Text(
+                    suffixe,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Encre,
+                    modifier = Modifier.align(Alignment.CenterVertically),
                 )
             }
         }
@@ -228,9 +263,9 @@ private fun FeaturedCard(
             color = TexteMuet,
         )
 
-        // Bouton insérer
+        // Bouton insérer — SEUL point qui insère réellement dans le chat
         Button(
-            onClick = { onInserer("itinéraire vers la gare de Lyon", "la gare de Lyon") },
+            onClick = { onInserer(g.texte, g.placeholder) },
             modifier = Modifier.fillMaxWidth().height(43.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Bleu),

@@ -29,8 +29,17 @@ import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,9 +80,38 @@ fun LucioleLogo(size: Dp, modifier: Modifier = Modifier) {
     )
 }
 
-/** Puce verte « Hors-ligne » avec icône wifi barré. */
+/** Vrai état de connectivité réseau, observé en direct via un callback réseau. */
 @Composable
-fun OfflinePill(modifier: Modifier = Modifier) {
+fun rememberEstConnecte(): Boolean {
+    val context = LocalContext.current
+    val cm = remember(context) { context.getSystemService(ConnectivityManager::class.java) }
+    var connecte by remember { mutableStateOf(estConnecteMaintenant(cm)) }
+    DisposableEffect(cm) {
+        if (cm == null) return@DisposableEffect onDispose { }
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) { connecte = estConnecteMaintenant(cm) }
+            override fun onLost(network: Network) { connecte = estConnecteMaintenant(cm) }
+            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
+                connecte = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            }
+        }
+        cm.registerDefaultNetworkCallback(callback)
+        onDispose { cm.unregisterNetworkCallback(callback) }
+    }
+    return connecte
+}
+
+private fun estConnecteMaintenant(cm: ConnectivityManager?): Boolean {
+    val net = cm?.activeNetwork ?: return false
+    val caps = cm.getNetworkCapabilities(net) ?: return false
+    return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+        caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+}
+
+/** Puce d'état réseau réelle : « En ligne » (wifi) ou « Hors-ligne » (wifi barré). */
+@Composable
+fun ConnectivitePill(modifier: Modifier = Modifier) {
+    val connecte = rememberEstConnecte()
     Row(
         modifier
             .clip(RoundedCornerShape(20.dp))
@@ -82,9 +120,12 @@ fun OfflinePill(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Icon(Icons.Outlined.WifiOff, contentDescription = null, tint = Vert, modifier = Modifier.size(13.dp))
+        Icon(
+            if (connecte) Icons.Outlined.Wifi else Icons.Outlined.WifiOff,
+            contentDescription = null, tint = Vert, modifier = Modifier.size(13.dp),
+        )
         Text(
-            stringResource(R.string.offline),
+            stringResource(if (connecte) R.string.en_ligne else R.string.offline),
             color = Vert,
             fontWeight = FontWeight.Bold,
             style = androidx.compose.material3.MaterialTheme.typography.labelSmall,

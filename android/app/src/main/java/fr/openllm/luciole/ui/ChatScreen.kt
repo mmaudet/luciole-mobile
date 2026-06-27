@@ -108,7 +108,7 @@ fun ChatPane(
                     Text(stringResource(R.string.chat_effacer), color = TexteFaible, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp)
                 }
             } else {
-                OfflinePill()
+                ConnectivitePill()
             }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(Bordure))

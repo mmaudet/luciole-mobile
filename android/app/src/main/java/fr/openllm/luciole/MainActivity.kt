@@ -5,7 +5,13 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -18,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import fr.openllm.luciole.cerveau.CerveauServeur
@@ -27,6 +34,7 @@ import fr.openllm.luciole.mains.Sortie
 import fr.openllm.luciole.moniteur.MoniteurViewModel
 import fr.openllm.luciole.ui.ChatViewModel
 import fr.openllm.luciole.ui.LucioleApp
+import fr.openllm.luciole.ui.theme.Fond
 import fr.openllm.luciole.ui.theme.LucioleTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,6 +58,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         val client = OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -102,20 +111,27 @@ class MainActivity : ComponentActivity() {
                         if (messages.isNotEmpty()) dernierIndex = messages.size - 1
                     }
 
-                    LucioleApp(
-                        expanded = expanded,
-                        chatVm = chatVm,
-                        moniteurVm = moniteurVm,
-                        langue = langue,
-                        onSetLangue = { langue = it },
-                        onEnvoyer = { texte ->
-                            if (contactPermissionDejaDemande.compareAndSet(false, true)) {
-                                requestContactPermission.launch(Manifest.permission.READ_CONTACTS)
-                            }
-                            chatVm.envoyer(texte)
-                        },
-                        onRelancer = { spec -> this@MainActivity.lancer(spec) },
-                    )
+                    // L'app est dessinée bord à bord (enableEdgeToEdge) ; on inset le contenu
+                    // pour ne pas passer SOUS la barre de statut / la barre de navigation,
+                    // et imePadding pour que la saisie reste au-dessus du clavier.
+                    Box(
+                        Modifier.fillMaxSize().background(Fond).systemBarsPadding().imePadding()
+                    ) {
+                        LucioleApp(
+                            expanded = expanded,
+                            chatVm = chatVm,
+                            moniteurVm = moniteurVm,
+                            langue = langue,
+                            onSetLangue = { langue = it },
+                            onEnvoyer = { texte ->
+                                if (contactPermissionDejaDemande.compareAndSet(false, true)) {
+                                    requestContactPermission.launch(Manifest.permission.READ_CONTACTS)
+                                }
+                                chatVm.envoyer(texte)
+                            },
+                            onRelancer = { spec -> this@MainActivity.lancer(spec) },
+                        )
+                    }
                 }
             }
         }

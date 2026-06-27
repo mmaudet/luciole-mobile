@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -160,11 +161,12 @@ private fun NavRail(dest: Int, onSelect: (Int) -> Unit) {
         Spacer(Modifier.size(8.dp))
         RailItem(Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
         Spacer(Modifier.weight(1f))
+        val connecte = rememberEstConnecte()
         Box(Modifier.size(40.dp).clip(CircleShape).background(VertClair), contentAlignment = Alignment.Center) {
-            Icon(Icons.Outlined.WifiOff, null, tint = Vert, modifier = Modifier.size(19.dp))
+            Icon(if (connecte) Icons.Outlined.Wifi else Icons.Outlined.WifiOff, null, tint = Vert, modifier = Modifier.size(19.dp))
         }
         Spacer(Modifier.size(7.dp))
-        Text(stringResource(R.string.offline), color = Vert, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+        Text(stringResource(if (connecte) R.string.en_ligne else R.string.offline), color = Vert, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
     }
 }
 

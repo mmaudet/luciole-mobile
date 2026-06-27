@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.openllm.luciole.R
@@ -339,9 +340,10 @@ private fun FoldStats(
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                BarresRow(
+                HistogrammeAvecAxes(
                     historique = historique,
                     couleurs = listOf(OrVif, Or),
+                    couleurAxe = Color(0xFF9FB0C8),
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
             }
@@ -511,11 +513,65 @@ private fun HistogrammeCard(
             color = if (fonce) Color(0xFFD4E0F5) else TexteMuet,
         )
         Spacer(Modifier.height(8.dp))
-        BarresRow(
+        HistogrammeAvecAxes(
             historique = historique,
             couleurs = if (fonce) listOf(OrVif, Or) else listOf(BleuHisto, Bleu),
+            couleurAxe = if (fonce) Color(0xFF9FB0C8) else TexteFaible,
             modifier = Modifier.fillMaxWidth().weight(1f).heightIn(min = 96.dp),
         )
+    }
+}
+
+/**
+ * Histogramme complet : axe Y (échelle tokens/s) à gauche, barres au centre
+ * (avec une fine gridline médiane), axe X (« −60 s … 0 s ») en dessous.
+ */
+@Composable
+private fun HistogrammeAvecAxes(
+    historique: List<Int>,
+    couleurs: List<Color>,
+    couleurAxe: Color,
+    modifier: Modifier = Modifier,
+) {
+    val maxVal = (historique.maxOrNull() ?: 1).coerceAtLeast(1)
+    Column(modifier) {
+        // Zone supérieure : axe Y + barres
+        Row(Modifier.fillMaxWidth().weight(1f)) {
+            // Axe des ordonnées (tokens/s)
+            Column(
+                Modifier.fillMaxHeight().width(32.dp).padding(end = 6.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(maxVal.toString(), fontFamily = PlexMono, fontSize = 10.sp, color = couleurAxe, textAlign = TextAlign.End)
+                Text((maxVal / 2).toString(), fontFamily = PlexMono, fontSize = 10.sp, color = couleurAxe, textAlign = TextAlign.End)
+                Text("0", fontFamily = PlexMono, fontSize = 10.sp, color = couleurAxe, textAlign = TextAlign.End)
+            }
+            // Zone des barres, avec gridline médiane derrière
+            Box(Modifier.weight(1f).fillMaxHeight()) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .align(Alignment.Center)
+                        .background(couleurAxe.copy(alpha = .25f)),
+                )
+                BarresRow(
+                    historique = historique,
+                    couleurs = couleurs,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        // Axe des abscisses (temps), aligné sous la zone des barres uniquement
+        Row(Modifier.fillMaxWidth()) {
+            Spacer(Modifier.width(32.dp))
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("−60 s", fontFamily = PlexMono, fontSize = 9.5.sp, color = couleurAxe)
+                Text("0 s", fontFamily = PlexMono, fontSize = 9.5.sp, color = couleurAxe)
+            }
+        }
     }
 }
 
