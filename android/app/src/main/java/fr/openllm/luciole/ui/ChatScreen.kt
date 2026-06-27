@@ -6,9 +6,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -40,6 +42,7 @@ fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
     var saisie by remember { mutableStateOf(TextFieldValue("")) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focus = LocalFocusManager.current
     var showAide by remember { mutableStateOf(false) }
     var pendingFocus by remember { mutableStateOf(false) }
 
@@ -56,23 +59,33 @@ fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
             items(state.messages) { m -> MessageCard(m) }
         }
         if (state.enCours) LinearProgressIndicator(Modifier.fillMaxWidth().padding(vertical = 6.dp))
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
-            Button(onClick = { showAide = true }) {
-                Text(stringResource(R.string.aide))
-            }
-        }
-        Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             OutlinedTextField(
                 value = saisie,
                 onValueChange = { saisie = it },
-                modifier = Modifier.weight(1f).focusRequester(focusRequester),
+                modifier = Modifier.weight(1f).fillMaxHeight().focusRequester(focusRequester),
                 placeholder = { Text(stringResource(R.string.placeholder_saisie)) }
             )
-            Button(
-                onClick = { onEnvoyer(saisie.text); saisie = TextFieldValue("") },
-                enabled = !state.enCours,
-                modifier = Modifier.padding(start = 6.dp)
-            ) { Text(stringResource(R.string.envoyer)) }
+            Column(modifier = Modifier.padding(start = 8.dp)) {
+                Button(onClick = { showAide = true }) {
+                    Text(stringResource(R.string.aide))
+                }
+                Spacer(Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        onEnvoyer(saisie.text)
+                        saisie = TextFieldValue("")
+                        keyboardController?.hide()
+                        focus.clearFocus()
+                    },
+                    enabled = !state.enCours
+                ) {
+                    Text(stringResource(R.string.envoyer))
+                }
+            }
         }
     }
 
@@ -132,8 +145,8 @@ private fun MessageCard(m: Message) {
         is Sortie.ContactIntrouvable -> stringResource(R.string.contact_introuvable, s.nom)
         null -> if (m.texte == "serveur_indisponible") stringResource(R.string.serveur_injoignable) else m.texte
     }
-    val texteAvecDuree = if (m.dureeMs != null) {
-        "$texte · ${"%.1f".format(m.dureeMs / 1000.0)} s"
+    val texteAvecDuree = if (m.dureeMs != null && m.sortie != null) {
+        "$texte · ${stringResource(R.string.duree_traitement, "%.1f".format(m.dureeMs / 1000.0))}"
     } else {
         texte
     }

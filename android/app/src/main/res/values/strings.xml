@@ -28,7 +28,8 @@
     <string name="pas_de_cloud">Cloud</string>
     <string name="aucune_donnee">🔒 Aucune donnée ne quitte le téléphone</string>
     <string name="nav_chat">Chat</string>
-    <string name="nav_moniteur">Moniteur</string>
+    <string name="nav_moniteur">Statistique</string>
+    <string name="duree_traitement">traité en %1$s s</string>
     <string-array name="exemples">
         <item>mets un minuteur de 5 minutes</item>
         <item>appelle Paul Maudet</item>
