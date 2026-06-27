@@ -136,6 +136,5 @@ Distribué sous **GNU Affero General Public License v3.0**, voir [`LICENSE`](LIC
 
 - Modèle **Luciole** : **[OpenLLM‑France](https://github.com/OpenLLM-France)** (`Luciole‑1B‑Instruct‑1.0`).
 - Inférence on‑device : **[llama.cpp](https://github.com/ggerganov/llama.cpp)**.
-- Démonstration par **Michel Maudet**.
 
 > *Souveraineté numérique : un modèle français, sur votre téléphone, qui n'envoie rien à personne.* 🔦
