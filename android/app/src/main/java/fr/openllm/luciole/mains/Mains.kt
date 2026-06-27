@@ -11,7 +11,7 @@ import fr.openllm.luciole.model.*
 data class IntentSpec(val action: String, val data: String? = null, val extras: Map<String, Any> = emptyMap())
 enum class AffichageType { NOTE, TRADUCTION, INCONNU }
 sealed interface Sortie {
-    data class Lancer(val spec: IntentSpec) : Sortie
+    data class Lancer(val spec: IntentSpec, val libelle: String) : Sortie
     data class Afficher(val type: AffichageType, val texte: String) : Sortie
     data class ContactIntrouvable(val nom: String) : Sortie
 }
@@ -27,7 +27,7 @@ object Mains {
             val target = Extraction.callTarget(phrase)
             val num = Extraction.extractPhone(phrase) ?: resoudreContact(target)
             if (num == null) Sortie.ContactIntrouvable(target)
-            else Sortie.Lancer(IntentSpec(Intent.ACTION_DIAL, "tel:$num"))
+            else Sortie.Lancer(IntentSpec(Intent.ACTION_DIAL, "tel:$num"), "act_appel")
         }
         is Action.Alarme -> {
             val parts = action.heure.split(":")
@@ -36,11 +36,11 @@ object Mains {
             Sortie.Lancer(IntentSpec(AlarmClock.ACTION_SET_ALARM, extras = mapOf(
                 AlarmClock.EXTRA_HOUR to h,
                 AlarmClock.EXTRA_MINUTES to m,
-                AlarmClock.EXTRA_MESSAGE to action.libelle)))
+                AlarmClock.EXTRA_MESSAGE to action.libelle)), "act_alarme")
         }
         is Action.Minuteur -> Sortie.Lancer(IntentSpec(AlarmClock.ACTION_SET_TIMER, extras = mapOf(
             AlarmClock.EXTRA_LENGTH to action.dureeMin * 60,
-            AlarmClock.EXTRA_MESSAGE to (action.libelle ?: ""))))
+            AlarmClock.EXTRA_MESSAGE to (action.libelle ?: ""))), "act_minuteur")
         is Action.Agenda -> Sortie.Lancer(IntentSpec(Intent.ACTION_INSERT,
             "content://com.android.calendar/events",
             extras = buildMap {
@@ -51,21 +51,21 @@ object Mains {
                     put(CalendarContract.EXTRA_EVENT_BEGIN_TIME, epochMs)
                     put(CalendarContract.EXTRA_EVENT_END_TIME, epochMs + 3_600_000L)
                 }
-            }))
+            }), "act_agenda")
         is Action.Message -> when (action.canal) {
             Canal.EMAIL -> Sortie.Lancer(IntentSpec(Intent.ACTION_SENDTO, "mailto:",
                 extras = buildMap {
                     action.objet?.let { put(Intent.EXTRA_SUBJECT, it) }
                     put(Intent.EXTRA_TEXT, action.corps)
-                }))
+                }), "act_message")
             Canal.SMS -> Sortie.Lancer(IntentSpec(Intent.ACTION_SENDTO, "smsto:",
-                extras = mapOf("sms_body" to action.corps)))
+                extras = mapOf("sms_body" to action.corps)), "act_message")
         }
         is Action.Itineraire -> Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW,
-            "geo:0,0?q=" + Uri.encode(action.destination)))
+            "geo:0,0?q=" + Uri.encode(action.destination)), "act_itineraire")
         is Action.Recherche -> Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW,
-            "https://www.qwant.com/?q=" + Uri.encode(action.requete)))
-        is Action.Ouvrir -> Sortie.Lancer(ouvrir(action.cible))
+            "https://www.qwant.com/?q=" + Uri.encode(action.requete)), "act_recherche")
+        is Action.Ouvrir -> Sortie.Lancer(ouvrir(action.cible), "act_ouvrir")
         is Action.Note -> Sortie.Afficher(AffichageType.NOTE, action.texte)
         is Action.Traduction -> Sortie.Afficher(AffichageType.TRADUCTION, action.resultat)
         Action.Inconnu -> Sortie.Afficher(AffichageType.INCONNU, "")

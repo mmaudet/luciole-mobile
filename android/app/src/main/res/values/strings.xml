@@ -9,6 +9,14 @@
     <string name="inconnu">Je ne sais pas faire ça.</string>
     <string name="aucune_app">Aucune application pour cette action.</string>
     <string name="note_prefixe">Note : %1$s</string>
+    <string name="act_appel">📞 Appel</string>
+    <string name="act_alarme">⏰ Alarme</string>
+    <string name="act_minuteur">⏱ Minuteur</string>
+    <string name="act_agenda">📅 Agenda</string>
+    <string name="act_message">✉️ Message</string>
+    <string name="act_itineraire">🗺 Itinéraire</string>
+    <string name="act_recherche">🔍 Recherche</string>
+    <string name="act_ouvrir">📲 Ouvrir</string>
     <string name="moniteur_titre">🔦 le Pixel sert les tokens</string>
     <string name="stat_tokens">Tokens servis</string>
     <string name="stat_debit">Débit tok/s</string>

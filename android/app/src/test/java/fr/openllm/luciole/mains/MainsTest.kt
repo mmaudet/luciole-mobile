@@ -9,11 +9,11 @@ import kotlin.test.assertTrue
 class MainsTest {
     @Test fun appelAvecNumeroDansLaPhrase() {
         val s = Mains.traiter(Action.Appel("ignoré"), "appelle le 06 12 34 56 78") { null }
-        assertEquals(Sortie.Lancer(IntentSpec("android.intent.action.DIAL", "tel:0612345678")), s)
+        assertEquals(Sortie.Lancer(IntentSpec("android.intent.action.DIAL", "tel:0612345678"), "act_appel"), s)
     }
     @Test fun appelParNomResolu() {
         val s = Mains.traiter(Action.Appel("Paul Maudet"), "appelle Paul Maudet") { "0612345678" }
-        assertEquals(Sortie.Lancer(IntentSpec("android.intent.action.DIAL", "tel:0612345678")), s)
+        assertEquals(Sortie.Lancer(IntentSpec("android.intent.action.DIAL", "tel:0612345678"), "act_appel"), s)
     }
     @Test fun appelContactIntrouvable() {
         val s = Mains.traiter(Action.Appel("Zorglub"), "appelle Zorglub") { null }
@@ -34,7 +34,7 @@ class MainsTest {
                 "android.intent.extra.alarm.MINUTES" to 30,
                 "android.intent.extra.alarm.MESSAGE" to "réveil"
             )
-        )), s)
+        ), "act_alarme"), s)
     }
 
     // --- Minuteur ---
@@ -46,7 +46,7 @@ class MainsTest {
                 "android.intent.extra.alarm.LENGTH" to 300,
                 "android.intent.extra.alarm.MESSAGE" to "cuisson"
             )
-        )), s)
+        ), "act_minuteur"), s)
     }
 
     // --- Agenda ---
@@ -59,7 +59,7 @@ class MainsTest {
                 "title" to "Dentiste",
                 "eventLocation" to "Paris"
             )
-        )), s)
+        ), "act_agenda"), s)
     }
 
     // --- Message email ---
@@ -72,7 +72,7 @@ class MainsTest {
                 "android.intent.extra.SUBJECT" to "Réunion",
                 "android.intent.extra.TEXT" to "Bonjour, à demain."
             )
-        )), s)
+        ), "act_message"), s)
     }
 
     // --- Message SMS ---
@@ -82,13 +82,13 @@ class MainsTest {
             "android.intent.action.SENDTO",
             "smsto:",
             extras = mapOf("sms_body" to "J'arrive dans 10 min")
-        )), s)
+        ), "act_message"), s)
     }
 
     // --- Ouvrir ---
     @Test fun ouvrirBluetooth() {
         val s = Mains.traiter(Action.Ouvrir(Cible.BLUETOOTH), "ouvre bluetooth") { null }
-        assertEquals(Sortie.Lancer(IntentSpec("android.settings.BLUETOOTH_SETTINGS")), s)
+        assertEquals(Sortie.Lancer(IntentSpec("android.settings.BLUETOOTH_SETTINGS"), "act_ouvrir"), s)
     }
 
     // --- Traduction ---

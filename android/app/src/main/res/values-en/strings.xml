@@ -9,6 +9,14 @@
     <string name="inconnu">I can\'t do that.</string>
     <string name="aucune_app">No app for this action.</string>
     <string name="note_prefixe">Note: %1$s</string>
+    <string name="act_appel">📞 Call</string>
+    <string name="act_alarme">⏰ Alarm</string>
+    <string name="act_minuteur">⏱ Timer</string>
+    <string name="act_agenda">📅 Calendar</string>
+    <string name="act_message">✉️ Message</string>
+    <string name="act_itineraire">🗺 Directions</string>
+    <string name="act_recherche">🔍 Search</string>
+    <string name="act_ouvrir">📲 Open</string>
     <string name="moniteur_titre">🔦 the Pixel is serving tokens</string>
     <string name="stat_tokens">Tokens served</string>
     <string name="stat_debit">Tokens/s</string>

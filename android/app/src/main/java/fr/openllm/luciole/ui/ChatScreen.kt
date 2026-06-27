@@ -47,7 +47,17 @@ fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
 @Composable
 private fun MessageCard(m: Message) {
     val texte = when (val s = m.sortie) {
-        is Sortie.Lancer -> stringResource(R.string.action_prefixe, s.spec.action.substringAfterLast('.'))
+        is Sortie.Lancer -> when (s.libelle) {
+            "act_appel"     -> stringResource(R.string.act_appel)
+            "act_alarme"    -> stringResource(R.string.act_alarme)
+            "act_minuteur"  -> stringResource(R.string.act_minuteur)
+            "act_agenda"    -> stringResource(R.string.act_agenda)
+            "act_message"   -> stringResource(R.string.act_message)
+            "act_itineraire"-> stringResource(R.string.act_itineraire)
+            "act_recherche" -> stringResource(R.string.act_recherche)
+            "act_ouvrir"    -> stringResource(R.string.act_ouvrir)
+            else            -> s.libelle
+        }
         is Sortie.Afficher -> when (s.type) {
             AffichageType.NOTE -> stringResource(R.string.note_prefixe, s.texte)
             AffichageType.TRADUCTION -> s.texte

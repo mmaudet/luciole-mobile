@@ -20,7 +20,7 @@ class MainsUriTest {
     @Test fun itineraireUriComplete() {
         val s = Mains.traiter(Action.Itineraire("Gare de Lyon", null), "itinéraire Gare de Lyon") { null }
         assertEquals(
-            Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW, "geo:0,0?q=Gare%20de%20Lyon")),
+            Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW, "geo:0,0?q=Gare%20de%20Lyon"), "act_itineraire"),
             s
         )
     }
@@ -28,7 +28,7 @@ class MainsUriTest {
     @Test fun rechercheUriComplete() {
         val s = Mains.traiter(Action.Recherche("tour Eiffel"), "cherche tour Eiffel") { null }
         assertEquals(
-            Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW, "https://www.qwant.com/?q=tour%20Eiffel")),
+            Sortie.Lancer(IntentSpec(Intent.ACTION_VIEW, "https://www.qwant.com/?q=tour%20Eiffel"), "act_recherche"),
             s
         )
     }
