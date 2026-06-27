@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -39,7 +38,6 @@ private val GABARITS = listOf(
 fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
     val state by vm.state.collectAsState()
     var saisie by remember { mutableStateOf(TextFieldValue("")) }
-    val exemples = stringArrayResource(R.array.exemples).toList()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var showAide by remember { mutableStateOf(false) }
@@ -58,13 +56,8 @@ fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
             items(state.messages) { m -> MessageCard(m) }
         }
         if (state.enCours) LinearProgressIndicator(Modifier.fillMaxWidth().padding(vertical = 6.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            exemples.take(3).forEach { ex ->
-                AssistChip(onClick = { saisie = TextFieldValue(ex) }, label = { Text(ex, maxLines = 1) })
-            }
-        }
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = { showAide = true }) {
+        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
+            Button(onClick = { showAide = true }) {
                 Text(stringResource(R.string.aide))
             }
         }

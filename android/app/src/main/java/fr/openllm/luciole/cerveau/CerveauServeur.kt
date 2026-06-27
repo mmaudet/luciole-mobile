@@ -19,7 +19,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class CerveauServeur(
     private val baseUrl: String,
-    private val client: OkHttpClient = OkHttpClient()
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+        .callTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 ) : Cerveau {
 
     private val jsonMedia = "application/json".toMediaType()
