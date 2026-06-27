@@ -37,4 +37,47 @@
         <item>call Paul Maudet</item>
         <item>directions to the station</item>
     </string-array>
+
+    <!-- ===== Refonte UX « République » ===== -->
+    <string name="demo">Demonstration</string>
+    <string name="tagline">Sovereign AI, 100% on your phone, offline.</string>
+    <string name="ob_titre">One sentence.\nOne action.\nNothing leaves the phone.</string>
+    <string name="ob_p1_titre">100% offline</string>
+    <string name="ob_p1_desc">No data ever leaves the device.</string>
+    <string name="ob_p2_titre">Sovereign model</string>
+    <string name="ob_p2_desc">Luciole-1B, French AI, runs on the phone.</string>
+    <string name="ob_p3_titre">11 native actions</string>
+    <string name="ob_p3_desc">Call, timer, directions… in ~3s.</string>
+    <string name="ob_cta">Get started</string>
+    <string name="ob_lang">Language</string>
+    <string name="ob_foot">OpenLLM-France · llama.cpp · on-device</string>
+    <string name="offline">Offline</string>
+    <string name="nav_aide">Help</string>
+    <string name="nav_stats">Stats</string>
+    <string name="chat_titre">Conversation</string>
+    <string name="chat_effacer">Clear</string>
+    <string name="aide_gabarits">Action templates</string>
+    <string name="aide_sous_titre">The entity is pre-selected, just type over it.</string>
+    <string name="aide_inserer">Insert into chat</string>
+    <string name="aide_feat_pre">Directions to </string>
+    <string name="aide_feat_ent">Gare de Lyon</string>
+    <string name="aide_feat_hint">Tap the entity to replace it, then send.</string>
+    <string name="stats_titre">The phone, the SLM\'s server</string>
+    <string name="stats_lock">No data leaves the phone.</string>
+    <string name="rate_unit">tok/s</string>
+    <string name="stat_debit_court">Throughput</string>
+    <string name="stat_requetes_court">In-flight</string>
+    <string name="stat_modele_label">Model · Q4_K_M</string>
+    <string name="stat_modele_valeur">Luciole-1B</string>
+    <string name="stat_modele_chip">Luciole-1B · Q4_K_M · on-device</string>
+    <string name="hist_caption">Tokens served · last 60 seconds</string>
+    <string name="warm_titre">First prompt &amp; cache</string>
+    <string name="warm_corps">The first request reads the system prompt (~1,300 tokens). Later ones reuse the KV cache. A silent warm-up at launch absorbs that cost.</string>
+    <string name="warm_first_label">first request</string>
+    <string name="warm_first_val">~14 s</string>
+    <string name="warm_cached_label">with cache</string>
+    <string name="warm_cached_val">~3–4 s</string>
+    <string name="contact_resolu">resolved from your contacts</string>
+    <string name="securite_appel">ACTION_DIAL · never calls automatically</string>
+    <string name="bouton_ouvrir">Open</string>
 </resources>

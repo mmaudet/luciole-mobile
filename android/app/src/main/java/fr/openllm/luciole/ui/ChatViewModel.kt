@@ -61,4 +61,8 @@ class ChatViewModel(
             }
         }
     }
+
+    fun effacer() {
+        _state.update { it.copy(messages = emptyList()) }
+    }
 }
