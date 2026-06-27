@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import fr.openllm.luciole.cerveau.CerveauServeur
 import fr.openllm.luciole.mains.Contacts
 import fr.openllm.luciole.mains.Mains.lancer
@@ -34,6 +35,7 @@ import fr.openllm.luciole.ui.ChatViewModel
 import fr.openllm.luciole.ui.MoniteurScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -63,6 +65,11 @@ class MainActivity : ComponentActivity() {
         val base = "http://127.0.0.1:8080"
 
         val cerveau = CerveauServeur(base, client)
+
+        // Pré-chauffage silencieux : une requête muette au démarrage pour que le serveur
+        // charge le prompt système en KV-cache avant la première vraie demande utilisateur.
+        // Les erreurs (serveur absent, CerveauIndisponible…) sont avalées sans planter l'UI.
+        lifecycleScope.launch { runCatching { cerveau.suggest("bonjour") } }
 
         // Le résolveur de contact lit la valeur atomique au moment de l'appel.
         // Si la permission est refusée ou si la requête échoue, on renvoie null
