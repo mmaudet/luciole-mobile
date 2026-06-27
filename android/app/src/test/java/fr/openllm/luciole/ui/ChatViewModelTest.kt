@@ -16,6 +16,7 @@ import org.junit.Before
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -51,6 +52,7 @@ class ChatViewModelTest {
         assertEquals(Role.LUCIOLE, state.messages[1].role)
         assertEquals("", state.messages[1].texte, "texte VM vide, l'UI localise depuis sortie")
         assertEquals(Sortie.Afficher(AffichageType.NOTE, "mémo test"), state.messages[1].sortie)
+        assertNotNull(state.messages[1].dureeMs, "dureeMs doit être défini sur le message LUCIOLE")
     }
 
     @Test

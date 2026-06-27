@@ -17,7 +17,8 @@ enum class Role { USER, LUCIOLE }
 data class Message(
     val role: Role,
     val texte: String,
-    val sortie: Sortie? = null
+    val sortie: Sortie? = null,
+    val dureeMs: Long? = null
 )
 
 data class ChatState(
@@ -42,16 +43,19 @@ class ChatViewModel(
         )}
 
         viewModelScope.launch {
+            val t0 = System.currentTimeMillis()
             try {
                 val action = cerveau.suggest(phrase)
                 val sortie = Mains.traiter(action, phrase, resoudreContact = resoudreContact)
+                val dureeMs = System.currentTimeMillis() - t0
                 _state.update { it.copy(
-                    messages = it.messages + Message(Role.LUCIOLE, texte = "", sortie = sortie),
+                    messages = it.messages + Message(Role.LUCIOLE, texte = "", sortie = sortie, dureeMs = dureeMs),
                     enCours = false
                 )}
             } catch (e: CerveauIndisponible) {
+                val dureeMs = System.currentTimeMillis() - t0
                 _state.update { it.copy(
-                    messages = it.messages + Message(Role.LUCIOLE, texte = "serveur_indisponible", sortie = null),
+                    messages = it.messages + Message(Role.LUCIOLE, texte = "serveur_indisponible", sortie = null, dureeMs = dureeMs),
                     enCours = false
                 )}
             }

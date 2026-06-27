@@ -17,6 +17,10 @@
     <string name="act_itineraire">🗺 Directions</string>
     <string name="act_recherche">🔍 Search</string>
     <string name="act_ouvrir">📲 Open</string>
+    <string name="act_note">📝 Note</string>
+    <string name="act_traduction">🌐 Translation</string>
+    <string name="aide">Help</string>
+    <string name="aide_titre">What can you do?</string>
     <string name="moniteur_titre">🔦 the Pixel is serving tokens</string>
     <string name="stat_tokens">Tokens served</string>
     <string name="stat_debit">Tokens/s</string>
