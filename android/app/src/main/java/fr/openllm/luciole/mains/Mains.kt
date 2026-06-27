@@ -98,6 +98,8 @@ object Mains {
             startActivity(intent)
         } catch (e: android.content.ActivityNotFoundException) {
             android.widget.Toast.makeText(this, R.string.aucune_app, android.widget.Toast.LENGTH_SHORT).show()
+        } catch (e: SecurityException) {
+            android.widget.Toast.makeText(this, R.string.aucune_app, android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 }
