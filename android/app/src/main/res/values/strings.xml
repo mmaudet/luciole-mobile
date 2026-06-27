@@ -21,7 +21,8 @@
     <string name="act_traduction">🌐 Traduction</string>
     <string name="aide">Aide</string>
     <string name="aide_titre">Que peux-tu faire ?</string>
-    <string name="moniteur_titre">🔦 le Pixel sert les tokens</string>
+    <string name="moniteur_titre">📱 Le téléphone, serveur du SLM</string>
+    <string name="histo_titre">Tokens servis / s (60 s)</string>
     <string name="stat_tokens">Tokens servis</string>
     <string name="stat_debit">Débit tok/s</string>
     <string name="stat_requetes">Requêtes en cours</string>
