@@ -8,12 +8,18 @@
 ![100% on-device](https://img.shields.io/badge/100%25-on--device-success)
 [![Modèle](https://img.shields.io/badge/Mod%C3%A8le-Luciole--1B--Instruct%20(GGUF)-orange)](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF)
 
+> **Interface adaptative** : un format **téléphone** (barre d'onglets, une colonne) et un format **Pixel Fold déplié** (rail de navigation, volets côte à côte).
+
+<p align="center">
+  <img src="screenshots/onboarding.png" width="82%" alt="Écran d'accueil sur Pixel Fold déplié : la promesse à gauche, la preuve de souveraineté à droite"/>
+</p>
+
 ## ✨ L'idée en une phrase
 
 Vous dites **« mets un minuteur de 5 minutes »**, **« appelle Paul Maudet »** ou **« itinéraire vers la gare de Lyon »**. Un modèle de langage **d'un milliard de paramètres** tourne **sur le téléphone lui‑même** (aucun cloud, aucune donnée qui sort), transforme votre phrase en une **action structurée**, et l'application **déclenche l'intent Android natif** correspondant : composer un numéro, ouvrir Maps, créer une alarme.
 
 <p align="center">
-  <img src="screenshots/chat.png" width="66%" alt="Une phrase devient une action native, avec la durée de traitement affichée"/>
+  <img src="screenshots/chat.png" width="92%" alt="Pixel Fold déplié : rail de navigation, conversation et panneau de gabarits d'actions côte à côte"/>
 </p>
 
 ## ⚠️ Nature de la démonstration (à lire)
@@ -54,7 +60,7 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 - **Bilingue** 🇫🇷 / 🇬🇧.
 
 <p align="center">
-  <img src="screenshots/aide.png" width="66%" alt="Panneau Aide : des gabarits d'actions avec l'entité déjà sélectionnée"/>
+  <img src="screenshots/aide.png" width="44%" alt="Format téléphone : la grille de gabarits d'actions et la carte d'aperçu (l'entité est pré-sélectionnée, on insère au bouton)"/>
 </p>
 
 ## 🧠 Comment ça marche : architecture « cerveau / mains »
@@ -85,7 +91,7 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 L'onglet **Statistiques** (« le téléphone, serveur du SLM ») montre en temps réel que c'est bien **le téléphone qui calcule** : tokens servis, débit en tokens par seconde, requêtes en cours, et un **histogramme** des tokens servis sur les 60 dernières secondes. Le cadenas le rappelle : **aucune donnée ne quitte le téléphone**.
 
 <p align="center">
-  <img src="screenshots/statistiques.png" width="84%" alt="Statistiques : le téléphone sert les tokens, tout est calculé localement"/>
+  <img src="screenshots/statistiques.png" width="92%" alt="Tableau de bord (Fold déplié) : tokens servis, débit, histogramme avec axe des tokens/s, et l'impact du 1er prompt"/>
 </p>
 
 **L'impact du premier prompt sur la performance au démarrage.** À chaque requête, le modèle doit d'abord « lire » le **prompt système** : environ 1 300 tokens de règles et d'exemples qui cadrent les 11 actions. La **toute première** requête après le démarrage du serveur paie ce coût en entier et reste lente (de l'ordre de 14 s sur le téléphone). Les requêtes suivantes **réutilisent le cache** de ce préfixe (le *KV cache* de `llama.cpp`) et retombent autour de **3 à 4 s**. Pour que l'utilisateur ne subisse jamais ce premier coût, l'application envoie un **pré‑chauffage silencieux** au lancement : une requête « à blanc » qui réchauffe le cache, afin que la première vraie demande soit déjà rapide. C'est ce que montre l'histogramme : une montée en charge initiale, puis un débit qui se stabilise.
