@@ -69,7 +69,7 @@ fun ChatScreen(vm: ChatViewModel, onEnvoyer: (String) -> Unit) {
                 modifier = Modifier.weight(1f).fillMaxHeight().focusRequester(focusRequester),
                 placeholder = { Text(stringResource(R.string.placeholder_saisie)) }
             )
-            Column(modifier = Modifier.padding(start = 8.dp)) {
+            Column(modifier = Modifier.padding(start = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Button(onClick = { showAide = true }) {
                     Text(stringResource(R.string.aide))
                 }
