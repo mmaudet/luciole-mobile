@@ -22,6 +22,7 @@
     <string name="aide">Aide</string>
     <string name="aide_titre">Que peux-tu faire ?</string>
     <string name="moniteur_titre">📱 Le téléphone, serveur du SLM</string>
+    <string name="moniteur_modele">Luciole-1B-Instruct-1.0</string>
     <string name="histo_titre">Tokens servis / s (60 s)</string>
     <string name="stat_tokens">Tokens servis</string>
     <string name="stat_debit">Débit tok/s</string>
