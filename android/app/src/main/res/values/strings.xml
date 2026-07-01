@@ -53,6 +53,8 @@
     <string name="ob_foot">OpenLLM-France · llama.cpp · on-device</string>
     <string name="en_ligne">En ligne</string>
     <string name="offline">Hors-ligne</string>
+    <string name="reseau_ok">Réseau OK</string>
+    <string name="aucun_reseau">Aucun réseau</string>
     <string name="nav_aide">Aide</string>
     <string name="nav_stats">Stats</string>
     <string name="chat_titre">Conversation</string>

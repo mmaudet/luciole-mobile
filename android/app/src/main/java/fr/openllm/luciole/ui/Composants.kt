@@ -26,13 +26,13 @@ import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -52,8 +52,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import fr.openllm.luciole.R
+import fr.openllm.luciole.ui.theme.FondChamp
 import fr.openllm.luciole.ui.theme.Or
 import fr.openllm.luciole.ui.theme.OrPale
+import fr.openllm.luciole.ui.theme.TexteMuet
 import fr.openllm.luciole.ui.theme.Vert
 import fr.openllm.luciole.ui.theme.VertClair
 
@@ -108,25 +110,26 @@ private fun estConnecteMaintenant(cm: ConnectivityManager?): Boolean {
         caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 }
 
-/** Puce d'état réseau réelle : « En ligne » (wifi) ou « Hors-ligne » (wifi barré). */
+/** Puce d'état réseau en direct : « Réseau OK » (wifi, vert) ou « Aucun réseau » (wifi barré, atténué). */
 @Composable
 fun ConnectivitePill(modifier: Modifier = Modifier) {
     val connecte = rememberEstConnecte()
+    val teinte = if (connecte) Vert else TexteMuet
     Row(
         modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(VertClair)
+            .background(if (connecte) VertClair else FondChamp)
             .padding(horizontal = 11.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Icon(
             if (connecte) Icons.Outlined.Wifi else Icons.Outlined.WifiOff,
-            contentDescription = null, tint = Vert, modifier = Modifier.size(13.dp),
+            contentDescription = null, tint = teinte, modifier = Modifier.size(13.dp),
         )
         Text(
-            stringResource(if (connecte) R.string.en_ligne else R.string.offline),
-            color = Vert,
+            stringResource(if (connecte) R.string.reseau_ok else R.string.aucun_reseau),
+            color = teinte,
             fontWeight = FontWeight.Bold,
             style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
         )

@@ -53,6 +53,8 @@ import fr.openllm.luciole.mains.IntentSpec
 import fr.openllm.luciole.moniteur.MoniteurViewModel
 import fr.openllm.luciole.ui.theme.BleuClair
 import fr.openllm.luciole.ui.theme.Bordure
+import fr.openllm.luciole.ui.theme.FondChamp
+import fr.openllm.luciole.ui.theme.TexteMuet
 import fr.openllm.luciole.ui.theme.Surface
 import fr.openllm.luciole.ui.theme.TexteFaible
 import fr.openllm.luciole.ui.theme.Vert
@@ -162,11 +164,12 @@ private fun NavRail(dest: Int, onSelect: (Int) -> Unit) {
         RailItem(Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
         Spacer(Modifier.weight(1f))
         val connecte = rememberEstConnecte()
-        Box(Modifier.size(40.dp).clip(CircleShape).background(VertClair), contentAlignment = Alignment.Center) {
-            Icon(if (connecte) Icons.Outlined.Wifi else Icons.Outlined.WifiOff, null, tint = Vert, modifier = Modifier.size(19.dp))
+        val teinteConn = if (connecte) Vert else TexteMuet
+        Box(Modifier.size(40.dp).clip(CircleShape).background(if (connecte) VertClair else FondChamp), contentAlignment = Alignment.Center) {
+            Icon(if (connecte) Icons.Outlined.Wifi else Icons.Outlined.WifiOff, null, tint = teinteConn, modifier = Modifier.size(19.dp))
         }
         Spacer(Modifier.size(7.dp))
-        Text(stringResource(if (connecte) R.string.en_ligne else R.string.offline), color = Vert, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+        Text(stringResource(if (connecte) R.string.reseau_ok else R.string.aucun_reseau), color = teinteConn, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
     }
 }
 
