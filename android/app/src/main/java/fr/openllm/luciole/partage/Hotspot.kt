@@ -59,18 +59,31 @@ class Hotspot(context: Context) {
         _etat.value = HotspotEtat.Inactif
     }
 
-    /** Gateway du hotspot local (plage standard Android 192.168.49.x), fallback 192.168.49.1. */
+    /**
+     * IP du téléphone sur l'interface du point d'accès (l'IP que les clients du hotspot doivent viser).
+     * On écarte le WiFi client (wlan0), le cellulaire (rmnet) et les VPN/tunnels ; on privilégie une
+     * interface AP explicite (ap, softap, swlan, wlan1 et plus). Fallback : première IP privée trouvée.
+     */
     private fun ipHotspot(): String {
+        var repli: String? = null
         try {
             for (nif in NetworkInterface.getNetworkInterfaces()) {
+                if (!nif.isUp || nif.isLoopback) continue
+                val nom = nif.name.lowercase()
+                if (nom.startsWith("wlan0") || nom.startsWith("rmnet") || nom.startsWith("tun") || nom.contains("dummy")) continue
                 for (addr in nif.inetAddresses) {
-                    val ip = addr.hostAddress ?: continue
-                    if (ip.startsWith("192.168.49.")) return ip
+                    if (addr is java.net.Inet4Address && addr.isSiteLocalAddress) {
+                        val ip = addr.hostAddress ?: continue
+                        val estAp = nom.startsWith("ap") || nom.startsWith("softap") || nom.startsWith("swlan") ||
+                            Regex("wlan[1-9].*").matches(nom)
+                        if (estAp) return ip
+                        if (repli == null) repli = ip
+                    }
                 }
             }
         } catch (_: Throwable) {
         }
-        return "192.168.49.1"
+        return repli ?: "192.168.49.1"
     }
 
     private fun messageEchec(reason: Int): String = when (reason) {
