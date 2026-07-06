@@ -119,14 +119,15 @@ private fun Actif(e: HotspotEtat.Actif, expanded: Boolean, onArreter: () -> Unit
     val qrWifi = remember(e.ssid, e.motDePasse) { qrBitmap(wifiQr(e.ssid, e.motDePasse)) }
     val qrUrl = remember(url) { qrBitmap(url) }
     val wifiTexte = "Réseau WiFi : ${e.ssid}\nMot de passe : ${e.motDePasse}"
+    val wifiSousTitre = "${e.ssid}\nMot de passe : ${e.motDePasse}"
     if (expanded) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, wifiTexte, true)
+            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, wifiSousTitre, wifiTexte, true)
             QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, url, true)
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, wifiTexte, false)
+            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, wifiSousTitre, wifiTexte, false)
             QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, url, false)
         }
     }
