@@ -83,4 +83,13 @@
     <string name="contact_resolu">résolu depuis vos contacts</string>
     <string name="securite_appel">ACTION_DIAL · jamais d\'appel automatique</string>
     <string name="bouton_ouvrir">Ouvrir</string>
+    <string name="nav_partage">Partage</string>
+    <string name="partage_titre">Partage</string>
+    <string name="partage_intro">Active un hotspot local : les invités scannent, se connectent et ouvrent la web app, sans rien taper. Tout reste sur le téléphone.</string>
+    <string name="partage_activer">Activer le partage</string>
+    <string name="partage_arreter">Arrêter le partage</string>
+    <string name="partage_reessayer">Réessayer</string>
+    <string name="partage_demarrage">Démarrage du hotspot…</string>
+    <string name="partage_wifi_titre">1. Rejoindre le WiFi</string>
+    <string name="partage_url_titre">2. Ouvrir la page</string>
 </resources>

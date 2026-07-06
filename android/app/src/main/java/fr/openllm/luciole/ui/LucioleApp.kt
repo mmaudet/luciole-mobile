@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
@@ -63,6 +64,7 @@ import fr.openllm.luciole.ui.theme.VertClair
 private const val CHAT = 0
 private const val AIDE = 1
 private const val STATS = 2
+private const val PARTAGE = 3
 
 @Composable
 fun LucioleApp(
@@ -122,10 +124,10 @@ fun LucioleApp(
     if (expanded) {
         Row(Modifier.fillMaxSize()) {
             NavRail(dest, onSelect = { dest = it })
-            if (dest == STATS) {
-                StatistiquesScreen(moniteurVm, expanded = true, modifier = Modifier.weight(1f).fillMaxHeight())
-            } else {
-                Row(Modifier.weight(1f).fillMaxHeight()) {
+            when (dest) {
+                STATS -> StatistiquesScreen(moniteurVm, expanded = true, modifier = Modifier.weight(1f).fillMaxHeight())
+                PARTAGE -> PartageScreen(expanded = true, modifier = Modifier.weight(1f).fillMaxHeight())
+                else -> Row(Modifier.weight(1f).fillMaxHeight()) {
                     chatPane(Modifier.weight(1f).fillMaxHeight(), false)
                     Box(
                         Modifier.width(384.dp).fillMaxHeight().background(Surface)
@@ -142,6 +144,7 @@ fun LucioleApp(
                 when (dest) {
                     AIDE -> AideScreen(expanded = false, onInserer = inserer)
                     STATS -> StatistiquesScreen(moniteurVm, expanded = false)
+                    PARTAGE -> PartageScreen(expanded = false)
                     else -> chatPane(Modifier.fillMaxSize(), true)
                 }
             }
@@ -162,6 +165,8 @@ private fun NavRail(dest: Int, onSelect: (Int) -> Unit) {
         RailItem(Icons.Outlined.ChatBubbleOutline, stringResource(R.string.nav_chat), dest == CHAT) { onSelect(CHAT) }
         Spacer(Modifier.size(8.dp))
         RailItem(Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
+        Spacer(Modifier.size(8.dp))
+        RailItem(Icons.Outlined.QrCode2, stringResource(R.string.nav_partage), dest == PARTAGE) { onSelect(PARTAGE) }
         Spacer(Modifier.weight(1f))
         val connecte = rememberEstConnecte()
         val teinteConn = if (connecte) Vert else TexteMuet
@@ -195,6 +200,7 @@ private fun BottomNav(dest: Int, onSelect: (Int) -> Unit) {
             BottomItem(Modifier.weight(1f), Icons.Outlined.ChatBubbleOutline, stringResource(R.string.nav_chat), dest == CHAT) { onSelect(CHAT) }
             BottomItem(Modifier.weight(1f), Icons.AutoMirrored.Outlined.HelpOutline, stringResource(R.string.nav_aide), dest == AIDE) { onSelect(AIDE) }
             BottomItem(Modifier.weight(1f), Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
+            BottomItem(Modifier.weight(1f), Icons.Outlined.QrCode2, stringResource(R.string.nav_partage), dest == PARTAGE) { onSelect(PARTAGE) }
         }
     }
 }

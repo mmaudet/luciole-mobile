@@ -83,4 +83,13 @@
     <string name="contact_resolu">resolved from your contacts</string>
     <string name="securite_appel">ACTION_DIAL · never calls automatically</string>
     <string name="bouton_ouvrir">Open</string>
+    <string name="nav_partage">Share</string>
+    <string name="partage_titre">Share</string>
+    <string name="partage_intro">Start a local hotspot: guests scan, connect and open the web app, with nothing to type. Everything stays on the phone.</string>
+    <string name="partage_activer">Start sharing</string>
+    <string name="partage_arreter">Stop sharing</string>
+    <string name="partage_reessayer">Retry</string>
+    <string name="partage_demarrage">Starting hotspot…</string>
+    <string name="partage_wifi_titre">1. Join the WiFi</string>
+    <string name="partage_url_titre">2. Open the page</string>
 </resources>
