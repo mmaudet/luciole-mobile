@@ -2,6 +2,7 @@ package fr.openllm.luciole.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -60,12 +61,17 @@ fun PartageScreen(expanded: Boolean, modifier: Modifier = Modifier) {
     val etat by vm.etat.collectAsState()
     val context = LocalContext.current
 
-    val demander = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-        if (ok) vm.demarrer()
+    val permsRequises = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES)
+        else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+    val demander = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        vm.demarrer()
     }
     val activer: () -> Unit = {
-        val accorde = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (accorde) vm.demarrer() else demander.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (permsRequises.all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }) vm.demarrer()
+        else demander.launch(permsRequises)
     }
 
     Column(

@@ -47,7 +47,7 @@ class Hotspot(context: Context) {
                 }
             }, null)
         } catch (e: SecurityException) {
-            _etat.value = HotspotEtat.Erreur("Autorise la localisation et active-la, puis réessaie.")
+            _etat.value = HotspotEtat.Erreur("Permission WiFi refusée : ${e.message ?: "autorise le partage des appareils à proximité"}.")
         } catch (e: Throwable) {
             _etat.value = HotspotEtat.Erreur(e.message ?: "Impossible de démarrer le hotspot.")
         }
