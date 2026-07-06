@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,7 +96,10 @@ class MainActivity : ComponentActivity() {
                 baseCtx.createConfigurationContext(conf)
             }
 
-            CompositionLocalProvider(LocalContext provides ctxLocalise) {
+            CompositionLocalProvider(
+                LocalContext provides ctxLocalise,
+                LocalActivityResultRegistryOwner provides this@MainActivity,
+            ) {
                 LucioleTheme {
                     val expanded = calculateWindowSizeClass(this).widthSizeClass == WindowWidthSizeClass.Expanded
 
