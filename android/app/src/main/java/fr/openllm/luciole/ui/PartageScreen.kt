@@ -1,6 +1,7 @@
 package fr.openllm.luciole.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,7 +24,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,8 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +53,7 @@ import fr.openllm.luciole.partage.PartageViewModel
 import fr.openllm.luciole.partage.qrBitmap
 import fr.openllm.luciole.partage.wifiQr
 import fr.openllm.luciole.ui.theme.Bleu
+import fr.openllm.luciole.ui.theme.BleuClair
 import fr.openllm.luciole.ui.theme.Bordure
 import fr.openllm.luciole.ui.theme.Encre
 import fr.openllm.luciole.ui.theme.Fond
@@ -109,15 +118,16 @@ private fun Actif(e: HotspotEtat.Actif, expanded: Boolean, onArreter: () -> Unit
     val url = "http://${e.ip}:8080"
     val qrWifi = remember(e.ssid, e.motDePasse) { qrBitmap(wifiQr(e.ssid, e.motDePasse)) }
     val qrUrl = remember(url) { qrBitmap(url) }
+    val wifiTexte = "Réseau WiFi : ${e.ssid}\nMot de passe : ${e.motDePasse}"
     if (expanded) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, true)
-            QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, true)
+            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, wifiTexte, true)
+            QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, url, true)
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, false)
-            QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, false)
+            QrCarte(stringResource(R.string.partage_wifi_titre), qrWifi, e.ssid, wifiTexte, false)
+            QrCarte(stringResource(R.string.partage_url_titre), qrUrl, url, url, false)
         }
     }
     Spacer(Modifier.height(20.dp))
@@ -127,18 +137,39 @@ private fun Actif(e: HotspotEtat.Actif, expanded: Boolean, onArreter: () -> Unit
 }
 
 @Composable
-private fun QrCarte(titre: String, qr: ImageBitmap, sousTitre: String, expanded: Boolean) {
-    val base = if (expanded) Modifier.width(300.dp) else Modifier.fillMaxWidth()
+private fun QrCarte(titre: String, qr: ImageBitmap, sousTitre: String, partage: String, expanded: Boolean) {
+    val base = if (expanded) Modifier.width(320.dp) else Modifier.fillMaxWidth()
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
     Column(
         base.clip(RoundedCornerShape(18.dp)).background(Surface).border(1.dp, Bordure, RoundedCornerShape(18.dp)).padding(18.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(titre, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Encre)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(titre, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Encre, modifier = Modifier.weight(1f))
+            IconeAction(Icons.Outlined.ContentCopy) { clipboard.setText(AnnotatedString(partage)) }
+            Spacer(Modifier.width(6.dp))
+            IconeAction(Icons.Outlined.Share) {
+                val envoi = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, partage)
+                }
+                context.startActivity(Intent.createChooser(envoi, null).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+            }
+        }
         Spacer(Modifier.height(14.dp))
-        Image(qr, contentDescription = titre, modifier = Modifier.size(if (expanded) 240.dp else 220.dp).clip(RoundedCornerShape(8.dp)))
+        Image(qr, contentDescription = titre, modifier = Modifier.size(if (expanded) 230.dp else 220.dp).clip(RoundedCornerShape(8.dp)))
         Spacer(Modifier.height(12.dp))
         Text(sousTitre, fontFamily = PlexMono, fontSize = 12.5.sp, color = TexteMuet)
     }
+}
+
+@Composable
+private fun IconeAction(icone: ImageVector, onClick: () -> Unit) {
+    Box(
+        Modifier.size(34.dp).clip(RoundedCornerShape(9.dp)).background(BleuClair).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) { Icon(icone, contentDescription = null, tint = Bleu, modifier = Modifier.size(18.dp)) }
 }
 
 @Composable
