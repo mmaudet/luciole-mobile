@@ -58,6 +58,7 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 - **Bouton Aide** : un panneau de **gabarits** (« itinéraire vers … ») où l'entité est **pré‑sélectionnée**, vous tapez directement par‑dessus.
 - **Sécurité** : `ACTION_DIAL` (jamais d'appel automatique), aucun message envoyé automatiquement (l'éditeur s'ouvre, vous validez).
 - **Bilingue** 🇫🇷 / 🇬🇧.
+- **📡 Partage (démo sur n'importe quel réseau)** : un onglet qui **crée un hotspot WiFi depuis le téléphone** et affiche **deux QR codes** (rejoindre le WiFi, puis ouvrir la page web). Les invités scannent, se connectent et testent **sans rien taper** — idéal quand on ne maîtrise pas le réseau du lieu.
 
 <p align="center">
   <img src="screenshots/aide-telephone.png" width="44%" alt="Format téléphone : la grille de gabarits d'actions et la carte d'aperçu (l'entité est pré-sélectionnée, on insère au bouton)"/>
@@ -96,6 +97,15 @@ L'onglet **Statistiques** (« le téléphone, serveur du SLM ») montre en temps
 
 **L'impact du premier prompt sur la performance au démarrage.** À chaque requête, le modèle doit d'abord « lire » le **prompt système** : environ 1 300 tokens de règles et d'exemples qui cadrent les 11 actions. La **toute première** requête après le démarrage du serveur paie ce coût en entier et reste lente (de l'ordre de 14 s sur le téléphone). Les requêtes suivantes **réutilisent le cache** de ce préfixe (le *KV cache* de `llama.cpp`) et retombent autour de **3 à 4 s**. Pour que l'utilisateur ne subisse jamais ce premier coût, l'application envoie un **pré‑chauffage silencieux** au lancement : une requête « à blanc » qui réchauffe le cache, afin que la première vraie demande soit déjà rapide. C'est ce que montre l'histogramme : une montée en charge initiale, puis un débit qui se stabilise.
 
+## 📡 Partage : faire tester toute la salle, sur n'importe quel réseau
+
+L'onglet **Partage** permet à un public de tester la démo **sans dépendre du WiFi du lieu** : le téléphone **crée son propre point d'accès WiFi** (hotspot local, sans Internet), et l'app génère **deux QR codes** —
+
+1. **Rejoindre le WiFi** : le QR encode le réseau et son mot de passe → l'invité scanne et se connecte **sans rien saisir** ;
+2. **Ouvrir la page** : le QR pointe vers la web app servie par le téléphone (`http://<ip>:8080`).
+
+Chaque carte a un bouton **Copier** / **Partager**, et le SSID et le mot de passe sont aussi affichés en clair. Tout reste **sur le téléphone** : hotspot local + SLM local = **souveraineté de bout en bout**, même face à un réseau inconnu.
+
 ## 🔧 Détails techniques
 
 | | |
@@ -117,7 +127,7 @@ L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fo
 | `android/` | **L'application native** (le cœur de cette démo) |
 | `server/` | Scripts de lancement du `llama-server` on‑device (Termux) |
 | `contract/` | La **grammaire GBNF** et le schéma des actions |
-| `web/` | Un client **web** alternatif servi par le téléphone (variante « toute la salle teste ») |
+| `web/` | Un client **web** (même design « République » que l'app) servi par le téléphone, pour faire tester depuis un navigateur |
 | `dispatcher/` | Le dispatcher Python de référence (preuve de concept initiale) |
 
 ## 🚀 Lancer la démo
@@ -133,6 +143,13 @@ L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fo
    adb install -r app/build/outputs/apk/debug/app-debug.apk
    ```
 4. Ouvrir **Luciole**, dire une phrase, regarder l'action se déclencher, et l'onglet **Statistiques** monter, **sans réseau**.
+
+### 📦 Télécharger l'APK sans rien compiler (GitHub Actions)
+
+À chaque évolution de l'app, **GitHub Actions** construit automatiquement un **APK debug** téléchargeable :
+
+- **Interface** : onglet **[Actions](https://github.com/mmaudet/luciole-mobile/actions)** → dernier run **« Build APK (debug) »** au vert → section **Artifacts** → `luciole-debug-apk`.
+- **CLI** : `gh run download -R mmaudet/luciole-mobile`, puis `adb install -r luciole-*-debug.apk`.
 
 ## 📄 Licence
 
