@@ -62,7 +62,7 @@ function applyLang() {
 const ACT = {
   appel: ['phone', 'Appel'], alarme: ['bell', 'Alarme'], minuteur: ['timer', 'Minuteur'], agenda: ['calendar', 'Agenda'],
   message: ['mail', 'Message'], itineraire: ['map', 'Itinéraire'], recherche: ['search', 'Recherche'],
-  ouvrir: ['app', 'Ouvrir'], note: ['notes', 'Note'], traduction: ['language', 'Traduction'], inconnu: ['question', '?'],
+  ouvrir: ['app', 'Ouvrir'], photo: ['flash', 'Photo'], note: ['notes', 'Note'], traduction: ['language', 'Traduction'], inconnu: ['question', '?'],
 };
 function sub(a) {
   switch (a.type) {
@@ -183,6 +183,7 @@ const GABARITS = [
   { key: 'itineraire', fr: { texte: 'itinéraire vers la gare de Lyon', ent: 'la gare de Lyon' }, en: { texte: 'directions to the train station', ent: 'the train station' } },
   { key: 'recherche', fr: { texte: 'cherche la capitale du Pérou', ent: 'la capitale du Pérou' }, en: { texte: 'search the capital of Peru', ent: 'the capital of Peru' } },
   { key: 'traduction', fr: { texte: 'traduis bonjour en anglais', ent: 'bonjour' }, en: { texte: 'translate hello into Spanish', ent: 'hello' } },
+  { key: 'photo', fr: { texte: 'prends une photo', ent: 'une photo' }, en: { texte: 'take a picture', ent: 'a picture' } },
   { key: 'agenda', fr: { texte: 'ajoute une réunion demain à 10h', ent: 'une réunion' }, en: { texte: 'add a meeting tomorrow at 10am', ent: 'a meeting' } },
   { key: 'message', fr: { texte: 'écris un mail à propos de la réunion de lundi', ent: 'la réunion de lundi' }, en: { texte: 'write an email about the monday meeting', ent: 'the monday meeting' } },
   { key: 'ouvrir', fr: { texte: 'ouvre Wikipédia', ent: 'Wikipédia' }, en: { texte: 'open Wikipedia', ent: 'Wikipedia' } },
@@ -192,8 +193,8 @@ const GABARITS = [
   { key: 'alarme', fr: { texte: 'réveille-moi à 7h30', ent: '7h30' }, en: { texte: 'wake me up at 7:30', ent: '7:30' } },
 ];
 const GLABEL = {
-  fr: { appel: 'Appel', minuteur: 'Minuteur', alarme: 'Alarme', agenda: 'Agenda', message: 'Message', itineraire: 'Itinéraire', recherche: 'Recherche', traduction: 'Traduction', note: 'Note', ouvrir: 'Ouvrir' },
-  en: { appel: 'Call', minuteur: 'Timer', alarme: 'Alarm', agenda: 'Calendar', message: 'Message', itineraire: 'Directions', recherche: 'Search', traduction: 'Translate', note: 'Note', ouvrir: 'Open' },
+  fr: { appel: 'Appel', minuteur: 'Minuteur', alarme: 'Alarme', agenda: 'Agenda', message: 'Message', itineraire: 'Itinéraire', recherche: 'Recherche', traduction: 'Traduction', note: 'Note', ouvrir: 'Ouvrir', photo: 'Photo' },
+  en: { appel: 'Call', minuteur: 'Timer', alarme: 'Alarm', agenda: 'Calendar', message: 'Message', itineraire: 'Directions', recherche: 'Search', traduction: 'Translate', note: 'Note', ouvrir: 'Open', photo: 'Photo' },
 };
 let selected = GABARITS.find(g => g.key === 'itineraire');
 function renderGabarits() {
