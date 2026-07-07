@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Timer
@@ -145,6 +146,7 @@ fun actionIcon(key: String): ImageVector = when {
     key.contains("message") -> Icons.Outlined.MailOutline
     key.contains("itineraire") -> Icons.Outlined.Place
     key.contains("recherche") -> Icons.Outlined.Search
+    key.contains("photo") -> Icons.Outlined.PhotoCamera
     key.contains("ouvrir") -> Icons.Outlined.GridView
     key.contains("traduction") || key.contains("traduire") -> Icons.Outlined.Translate
     key.contains("note") -> Icons.Outlined.EditNote

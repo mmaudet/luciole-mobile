@@ -21,9 +21,9 @@ Règles de choix de l'action :
 - "itineraire" : se déplacer vers un lieu — "itinéraire", "aller à", "route vers", "comment aller à".
   Champs : destination, mode (optionnel).
 - "appel" : appeler ou téléphoner. Champ : destinataire = le NUMÉRO en chiffres s'il est donné, SINON le NOM de la personne à appeler (ex. "Michel-Marie Maudet").
-- "note" : noter un mémo POUR SOI (aucun destinataire) — "note", "prends une note", "note que…", "mémo", "ajoute à ma liste". Champ : texte. (Un mémo personnel reste "note" même s'il évoque réserver/acheter/contacter quelque chose ; ce n'est PAS un "message".)
+- "note" : noter un mémo POUR SOI (aucun destinataire) — "note", "prends une note", "note que…", "mémo", "ajoute à ma liste". Champ : texte. (Un mémo personnel reste "note" même s'il évoque réserver/acheter/contacter quelque chose ; ce n'est PAS un "message". Une demande de PHOTO n'est PAS une "note" -> "ouvrir" + appareil_photo.)
 - "recherche" : chercher une information, des horaires, un prix, une définition, un fait — "cherche", "recherche", "c'est quoi", "qui est", "définition de", "trouve", "horaires de". Champ : requete. ("définition de X", "c'est quoi X" -> recherche, PAS traduction ; "cherche les horaires de X" -> recherche même si un lieu est nommé, PAS un agenda.)
-- "ouvrir" : ouvrir une application ou un écran de réglage. Champ : cible, UNIQUEMENT parmi : youtube, maps, chrome, appareil_photo, parametres, bluetooth, wifi. Si l'app/le réglage demandé n'est pas dans cette liste, choisis "inconnu". ("ouvre <app> et cherche Y" -> recherche.)
+- "ouvrir" : ouvrir une application ou un écran de réglage. Champ : cible, UNIQUEMENT parmi : youtube, maps, chrome, appareil_photo, parametres, bluetooth, wifi. Si l'app/le réglage demandé n'est pas dans cette liste, choisis "inconnu". ("ouvre <app> et cherche Y" -> recherche ; TOUTE demande de photo — "prends une photo", "prendre une photo", "take a photo", "take a picture", "un selfie" — -> ouvrir + appareil_photo, JAMAIS "note".)
 - "traduction" : traduire un texte. Champs : texte (à traduire), cible (langue parmi : anglais, espagnol, allemand, italien, portugais), resultat (TA traduction du texte dans la langue cible). C'est la SEULE action où tu écris un contenu ; ailleurs tu ne fais que router. ("traduis X en <langue>", "comment dit-on X en <langue>", "dis X en <langue>" -> traduction.)
 - "inconnu" : AUCUNE autre action ne convient (blague, chanson, salutation, opinion/discussion libre, app non listée…). Aucun champ. Ne force jamais une action au hasard : en cas de doute, choisis "inconnu".
 
@@ -70,6 +70,12 @@ JSON : {"type":"inconnu"}
 
 Phrase : ouvre YouTube
 JSON : {"type":"ouvrir","cible":"youtube"}
+
+Phrase : prends une photo
+JSON : {"type":"ouvrir","cible":"appareil_photo"}
+
+Phrase : take a picture
+JSON : {"type":"ouvrir","cible":"appareil_photo"}
 
 Phrase : traduis "bonjour le monde" en anglais
 JSON : {"type":"traduction","texte":"bonjour le monde","cible":"anglais","resultat":"hello world"}

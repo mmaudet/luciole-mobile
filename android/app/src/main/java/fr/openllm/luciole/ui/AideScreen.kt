@@ -59,6 +59,7 @@ private val GABARITS = listOf(
     Gabarit(R.string.act_itineraire, "itinéraire vers la gare de Lyon",        "la gare de Lyon",       "itineraire"),
     Gabarit(R.string.act_recherche,  "cherche la capitale du Pérou",           "la capitale du Pérou",  "recherche"),
     Gabarit(R.string.act_traduction, "traduis bonjour en anglais",             "bonjour",               "traduction"),
+    Gabarit(R.string.act_photo,      "prends une photo",                       "une photo",             "photo"),
     Gabarit(R.string.act_note,       "note : acheter du pain",                 "acheter du pain",       "note"),
     Gabarit(R.string.act_ouvrir,     "ouvre YouTube",                          "YouTube",               "ouvrir"),
 )
