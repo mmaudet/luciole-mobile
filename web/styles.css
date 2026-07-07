@@ -82,6 +82,9 @@ button{ font-family:inherit; cursor:pointer; border:none; background:none; }
 .btn-icone:hover{ background:var(--champ); }
 .btn-icone.on{ background:var(--bleu-clair); color:var(--bleu); border-color:var(--bleu-bordure); }
 .btn-icone .ico{ width:20px; height:20px; }
+.btn-aide{ border:1px solid var(--bordure); border-radius:9px; padding:7px 12px; font-weight:600; font-size:13px; color:var(--muet); background:var(--surface); white-space:nowrap; }
+.btn-aide:hover{ background:var(--champ); }
+.btn-aide.on{ color:var(--bleu); border-color:var(--bleu-bordure); background:var(--bleu-clair); }
 
 .messages{ flex:1; overflow-y:auto; padding:22px; display:flex; flex-direction:column; gap:16px; }
 .msg-user{ align-self:flex-end; max-width:80%; background:var(--bleu); color:#fff; padding:11px 15px; border-radius:16px 16px 4px 16px; font-size:15px; }

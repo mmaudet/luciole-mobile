@@ -25,6 +25,7 @@ const I18N = {
     aide_gabarits: 'Gabarits d’actions', aide_sous_titre: 'L’entité est déjà sélectionnée, tapez par-dessus.',
     aide_inserer: 'Insérer dans le chat', aide_hint: 'Touchez l’entité pour la remplacer, puis envoyez.',
     ouvrir: 'Ouvrir', reflechit: 'Luciole réfléchit', traite_en: 'traité en', inconnu: 'Je ne sais pas faire ça.', prendre_photo: 'Prendre la photo',
+    masquer_aide: 'Masquer l’aide', afficher_aide: 'Afficher l’aide',
   },
   en: {
     demo: 'DEMO', tagline: 'Sovereign AI, 100% on your phone, offline.',
@@ -38,6 +39,7 @@ const I18N = {
     aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected — type over it.',
     aide_inserer: 'Insert into chat', aide_hint: 'Tap the entity to replace it, then send.',
     ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.', prendre_photo: 'Take the photo',
+    masquer_aide: 'Hide help', afficher_aide: 'Show help',
   },
 };
 let LANG = 'fr';
@@ -222,7 +224,7 @@ setInterval(pingConn, 5000);
 
 // ---------------- wiring ----------------
 $('commencer').addEventListener('click', () => { $('onboarding').classList.add('hidden'); $('app').classList.remove('hidden'); $('phrase').focus(); });
-for (const b of document.querySelectorAll('#lang-toggle button')) b.addEventListener('click', () => { LANG = b.dataset.lang; applyLang(); });
+for (const b of document.querySelectorAll('#lang-toggle button')) b.addEventListener('click', () => { LANG = b.dataset.lang; applyLang(); paintAide(); });
 $('go').addEventListener('click', () => { const v = $('phrase').value; $('phrase').value = ''; run(v); });
 $('phrase').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('go').click(); } });
 $('effacer').addEventListener('click', () => messages().replaceChildren());
@@ -237,7 +239,8 @@ $('inserer').addEventListener('click', () => {
 let aideOuvert = window.innerWidth > 900;
 function paintAide() {
   $('app').classList.toggle('aide-ferme', !aideOuvert);
-  const b = $('toggle-aide'); if (b) b.classList.toggle('on', aideOuvert);
+  const b = $('toggle-aide');
+  if (b) { b.classList.toggle('on', aideOuvert); b.textContent = t(aideOuvert ? 'masquer_aide' : 'afficher_aide'); }
 }
 $('toggle-aide').addEventListener('click', () => { aideOuvert = !aideOuvert; paintAide(); });
 
