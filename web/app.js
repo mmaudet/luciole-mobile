@@ -31,7 +31,7 @@ const I18N = {
     aide_gabarits: 'Gabarits d’actions', aide_sous_titre: 'L’entité est déjà sélectionnée, tapez par-dessus.',
     aide_inserer: 'Insérer dans le chat', aide_hint: 'Touchez l’entité pour la remplacer, puis envoyez.',
     ouvrir: 'Ouvrir', reflechit: 'Luciole réfléchit', traite_en: 'traité en', inconnu: 'Je ne sais pas faire ça.', prendre_photo: 'Prendre la photo',
-    masquer_aide: 'Masquer l’aide', afficher_aide: 'Afficher l’aide', capturer: 'Capturer',
+    masquer_aide: 'Masquer l’aide', afficher_aide: 'Afficher l’aide', capturer: 'Capturer', ecouter: '🔊 Écouter',
   },
   en: {
     demo: 'DEMO', tagline: 'Sovereign AI, 100% on your phone, offline.',
@@ -45,7 +45,7 @@ const I18N = {
     aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected, type over it.',
     aide_inserer: 'Insert into chat', aide_hint: 'Tap the entity to replace it, then send.',
     ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.', prendre_photo: 'Take the photo',
-    masquer_aide: 'Hide help', afficher_aide: 'Show help', capturer: 'Capture',
+    masquer_aide: 'Hide help', afficher_aide: 'Show help', capturer: 'Capture', ecouter: '🔊 Listen',
   },
 };
 let LANG = 'fr';
@@ -118,6 +118,8 @@ function actionCard(action, secs) {
   else if (link.kind === 'webcam') { foot.appendChild(boutonWebcam(card)); }
   else { const p = document.createElement('div'); p.className = 'proc'; p.textContent = link.label || ''; foot.appendChild(p); }
 
+  if (action.type === 'traduction' && action.resultat && 'speechSynthesis' in window) foot.appendChild(boutonParler(action.resultat, action.cible));
+
   const proc = document.createElement('span'); proc.className = 'proc';
   if (secs != null) proc.textContent = `${t('traite_en')} ${secs} s`;
   foot.appendChild(proc); card.appendChild(foot); wrap.appendChild(card);
@@ -157,6 +159,16 @@ async function ouvrirWebcam(card, btn) {
     card.insertBefore(p, card.querySelector('.foot')); btn.disabled = false;
     if (stream) stream.getTracks().forEach(tr => tr.stop());
   }
+}
+
+// ---------------- parole (synthèse vocale du navigateur : lit la traduction à voix haute, hors-ligne) ----------------
+const VOIX = { anglais: 'en', espagnol: 'es', allemand: 'de', italien: 'it', portugais: 'pt' };
+function boutonParler(texte, cible) {
+  const b = document.createElement('button'); b.className = 'btn-open'; b.textContent = t('ecouter');
+  b.onclick = () => {
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(texte); u.lang = VOIX[cible] || 'fr'; speechSynthesis.speak(u); } catch (e) {}
+  };
+  return b;
 }
 
 async function run(phrase) {
