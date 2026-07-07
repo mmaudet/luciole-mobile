@@ -1,7 +1,13 @@
-// web/app.js — logique + rendu « République » (icônes ligne Iconoir). Contrat serveur + deeplinks conservés.
-import { buildDeepLink, extractPhone, callTarget } from './deeplinks.mjs?v=3';
+// web/app.js : logique + rendu « République » (icônes ligne Iconoir). Contrat serveur + deeplinks conservés.
+import { buildDeepLink, extractPhone, callTarget } from './deeplinks.mjs?v=4';
 
-const SYSTEM = fetch('system_prompt.txt').then(r => { if (!r.ok) throw new Error('prompt ' + r.status); return r.text(); });
+// Prompt système par langue (FR/EN) : bascule automatiquement avec le toggle de langue.
+const SYSTEMS = {};
+function getSystem() {
+  const f = LANG === 'en' ? 'system_prompt_en.txt' : 'system_prompt.txt';
+  if (!SYSTEMS[f]) SYSTEMS[f] = fetch(f).then(r => { if (!r.ok) throw new Error('prompt ' + r.status); return r.text(); });
+  return SYSTEMS[f];
+}
 const platform = () => {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
@@ -36,7 +42,7 @@ const I18N = {
     ob_cta: 'Start', ob_lang: 'Language', stats_lock: 'No data leaves the phone.',
     nav_chat: 'Chat', chat_titre: 'Conversation', chat_effacer: 'Clear', envoyer: 'Send',
     phone_ok: 'Phone', phone_ko: 'Disconnected', ph_saisie: 'Say something…',
-    aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected — type over it.',
+    aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected, type over it.',
     aide_inserer: 'Insert into chat', aide_hint: 'Tap the entity to replace it, then send.',
     ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.', prendre_photo: 'Take the photo',
     masquer_aide: 'Hide help', afficher_aide: 'Show help', capturer: 'Capture',
@@ -56,7 +62,7 @@ function applyLang() {
 const ACT = {
   appel: ['phone', 'Appel'], alarme: ['bell', 'Alarme'], minuteur: ['timer', 'Minuteur'], agenda: ['calendar', 'Agenda'],
   message: ['mail', 'Message'], itineraire: ['map', 'Itinéraire'], recherche: ['search', 'Recherche'],
-  ouvrir: ['app', 'Ouvrir'], note: ['notes', 'Note'], traduction: ['language', 'Traduction'], inconnu: ['question', '—'],
+  ouvrir: ['app', 'Ouvrir'], note: ['notes', 'Note'], traduction: ['language', 'Traduction'], inconnu: ['question', '?'],
 };
 function sub(a) {
   switch (a.type) {
@@ -75,7 +81,7 @@ function sub(a) {
 }
 
 async function ask(phrase) {
-  const system = await SYSTEM;
+  const system = await getSystem();
   const r = await fetch('/v1/chat/completions', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: phrase }], temperature: 0.0, max_tokens: 256 }),
@@ -92,18 +98,18 @@ function addUser(text) { const d = document.createElement('div'); d.className = 
 function actionCard(action, secs) {
   const wrap = document.createElement('div'); wrap.className = 'msg-bot';
   const card = document.createElement('div'); card.className = 'action-card';
-  const [icon, label] = ACT[action.type] || ACT.inconnu;
+  const [icon] = ACT[action.type] || ACT.inconnu;
   const top = document.createElement('div'); top.className = 'top';
   const ic = document.createElement('div'); ic.className = 'ic'; ic.appendChild(icoEl(icon));
   const meta = document.createElement('div');
-  const lab = document.createElement('div'); lab.className = 'label'; lab.textContent = action.type === 'inconnu' ? t('inconnu') : label;
+  const lab = document.createElement('div'); lab.className = 'label'; lab.textContent = action.type === 'inconnu' ? t('inconnu') : ((GLABEL[LANG] || GLABEL.fr)[action.type] || action.type);
   const s = document.createElement('div'); s.className = 'sub'; s.textContent = sub(action);
   meta.append(lab, s); top.append(ic, meta); card.appendChild(top);
 
   const pre = document.createElement('pre'); pre.textContent = JSON.stringify(action, null, 2); card.appendChild(pre);
 
   const foot = document.createElement('div'); foot.className = 'foot';
-  const link = buildDeepLink(action, platform(), new Date());
+  const link = buildDeepLink(action, platform(), new Date(), LANG);
   const openBtn = () => { const a = document.createElement('a'); a.className = 'btn-open'; a.append(document.createTextNode(t('ouvrir') + ' '), icoEl('arrow')); return a; };
   if (link.kind === 'href') { const a = openBtn(); a.href = link.href; foot.appendChild(a); }
   else if (link.kind === 'ics') { const a = openBtn(); a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/calendar' })); a.download = link.filename; foot.appendChild(a); }
@@ -172,18 +178,18 @@ async function run(phrase) {
 }
 
 // ---------------- Aide : gabarits (les 10 de l'app) ----------------
-// Ordre pensé pour la démo PC : d'abord les actions qui ouvrent un résultat à l'écran.
+// Ordre pensé pour la démo PC : d'abord les actions qui ouvrent un résultat à l'écran. Phrases bilingues.
 const GABARITS = [
-  { key: 'itineraire', texte: 'itinéraire vers la gare de Lyon', ent: 'la gare de Lyon' },
-  { key: 'recherche', texte: 'cherche la capitale du Pérou', ent: 'la capitale du Pérou' },
-  { key: 'traduction', texte: 'traduis bonjour en anglais', ent: 'bonjour' },
-  { key: 'agenda', texte: 'ajoute une réunion demain à 10h', ent: 'une réunion' },
-  { key: 'message', texte: 'écris un mail à propos de la réunion de lundi', ent: 'la réunion de lundi' },
-  { key: 'ouvrir', texte: 'ouvre Wikipédia', ent: 'Wikipédia' },
-  { key: 'note', texte: 'note : acheter du pain', ent: 'acheter du pain' },
-  { key: 'appel', texte: 'appelle Marie Curie', ent: 'Marie Curie' },
-  { key: 'minuteur', texte: 'minuteur de 5 minutes', ent: '5' },
-  { key: 'alarme', texte: 'réveille-moi à 7h30', ent: '7h30' },
+  { key: 'itineraire', fr: { texte: 'itinéraire vers la gare de Lyon', ent: 'la gare de Lyon' }, en: { texte: 'directions to the train station', ent: 'the train station' } },
+  { key: 'recherche', fr: { texte: 'cherche la capitale du Pérou', ent: 'la capitale du Pérou' }, en: { texte: 'search the capital of Peru', ent: 'the capital of Peru' } },
+  { key: 'traduction', fr: { texte: 'traduis bonjour en anglais', ent: 'bonjour' }, en: { texte: 'translate hello into Spanish', ent: 'hello' } },
+  { key: 'agenda', fr: { texte: 'ajoute une réunion demain à 10h', ent: 'une réunion' }, en: { texte: 'add a meeting tomorrow at 10am', ent: 'a meeting' } },
+  { key: 'message', fr: { texte: 'écris un mail à propos de la réunion de lundi', ent: 'la réunion de lundi' }, en: { texte: 'write an email about the monday meeting', ent: 'the monday meeting' } },
+  { key: 'ouvrir', fr: { texte: 'ouvre Wikipédia', ent: 'Wikipédia' }, en: { texte: 'open Wikipedia', ent: 'Wikipedia' } },
+  { key: 'note', fr: { texte: 'note : acheter du pain', ent: 'acheter du pain' }, en: { texte: 'note: buy bread', ent: 'buy bread' } },
+  { key: 'appel', fr: { texte: 'appelle Marie Curie', ent: 'Marie Curie' }, en: { texte: 'call Marie Curie', ent: 'Marie Curie' } },
+  { key: 'minuteur', fr: { texte: 'minuteur de 5 minutes', ent: '5' }, en: { texte: 'set a 5 minute timer', ent: '5' } },
+  { key: 'alarme', fr: { texte: 'réveille-moi à 7h30', ent: '7h30' }, en: { texte: 'wake me up at 7:30', ent: '7:30' } },
 ];
 const GLABEL = {
   fr: { appel: 'Appel', minuteur: 'Minuteur', alarme: 'Alarme', agenda: 'Agenda', message: 'Message', itineraire: 'Itinéraire', recherche: 'Recherche', traduction: 'Traduction', note: 'Note', ouvrir: 'Ouvrir' },
@@ -203,13 +209,14 @@ function renderGabarits() {
 function renderFeatured() {
   const f = $('featured'); if (!f) return; f.replaceChildren();
   const g = selected;
+  const ph = g[LANG] || g.fr;
   const ic = document.createElement('div'); ic.className = 'f-ic'; ic.appendChild(icoEl((ACT[g.key] || ['question'])[0]));
   const lab = document.createElement('div'); lab.className = 'f-label'; lab.textContent = ((GLABEL[LANG] || GLABEL.fr)[g.key] || '').toUpperCase();
-  const idx = g.texte.indexOf(g.ent);
-  const pre = idx >= 0 ? g.texte.slice(0, idx) : g.texte;
-  const suf = idx >= 0 ? g.texte.slice(idx + g.ent.length) : '';
+  const idx = ph.texte.indexOf(ph.ent);
+  const pre = idx >= 0 ? ph.texte.slice(0, idx) : ph.texte;
+  const suf = idx >= 0 ? ph.texte.slice(idx + ph.ent.length) : '';
   const p = document.createElement('div'); p.className = 'f-phrase';
-  const ent = document.createElement('span'); ent.className = 'ent'; ent.textContent = g.ent;
+  const ent = document.createElement('span'); ent.className = 'ent'; ent.textContent = ph.ent;
   p.append(document.createTextNode(pre), ent, document.createTextNode(suf));
   const h = document.createElement('div'); h.className = 'f-hint'; h.textContent = t('aide_hint');
   f.append(ic, lab, p, h);
@@ -234,7 +241,7 @@ $('go').addEventListener('click', () => { const v = $('phrase').value; $('phrase
 $('phrase').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('go').click(); } });
 $('effacer').addEventListener('click', () => messages().replaceChildren());
 $('inserer').addEventListener('click', () => {
-  const g = selected, ta = $('phrase');
+  const g = selected[LANG] || selected.fr, ta = $('phrase');
   ta.value = g.texte; ta.focus();
   const i = g.texte.indexOf(g.ent);
   if (i >= 0) ta.setSelectionRange(i, i + g.ent.length);
