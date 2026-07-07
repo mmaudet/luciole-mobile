@@ -28,10 +28,12 @@ export function callTarget(phrase) {
 export function buildDeepLink(action, platform, now) {
   switch (action.type) {
     case 'alarme':
-      return { kind: 'unsupported', label: "Alarme : démo sur le Pixel uniquement (non disponible côté web)" };
+      return { kind: 'unsupported', label: "Alarme : s'exécute sur le Pixel (réveil)." };
 
     case 'appel': {
-      // A number -> tel:. A contact NAME -> the address-book lookup is Pixel-only (no browser access).
+      // Sur PC, l'appel n'a pas de sens concret -> carte « sur le Pixel ». Sur mobile : tel: (numéro) ou carnet (nom).
+      if (platform === 'desktop')
+        return { kind: 'unsupported', label: `Appel de « ${action.destinataire || ''} » : s'exécute sur le Pixel (numéroteur).` };
       const num = (action.destinataire || '').replace(/[^\d+]/g, '');
       return /\d/.test(num)
         ? { kind: 'href', href: `tel:${num}`, label: 'Ouvrir le numéroteur' }
@@ -44,17 +46,22 @@ export function buildDeepLink(action, platform, now) {
           href: `mailto:?subject=${enc(action.objet || '')}&body=${enc(action.corps || '')}`,
           label: 'Rédiger l’email' };
       }
-      // SMS body param: iOS historically uses `&body=`, Android `?body=`.
+      // SMS : natif mobile. Sur PC -> carte « sur le Pixel ».
+      if (platform === 'desktop')
+        return { kind: 'unsupported', label: "SMS : s'exécute sur le Pixel (ouvre Messages)." };
+      // iOS historically uses `&body=`, Android `?body=`.
       return { kind: 'href',
         href: platform === 'ios' ? `sms:&body=${enc(action.corps || '')}` : `sms:?body=${enc(action.corps || '')}`,
         label: 'Rédiger le SMS' };
 
-    case 'itineraire':
-      return { kind: 'href',
-        href: platform === 'ios'
-          ? `https://maps.apple.com/?q=${enc(action.destination)}`
-          : `geo:0,0?q=${enc(action.destination)}`,
-        label: 'Ouvrir l’itinéraire' };
+    case 'itineraire': {
+      const dst = enc(action.destination);
+      const gmode = ({ voiture: 'driving', transit: 'transit', pieton: 'walking' })[action.mode] || 'transit';
+      const href = platform === 'ios' ? `https://maps.apple.com/?q=${dst}`
+        : platform === 'android' ? `geo:0,0?q=${dst}`
+        : `https://www.google.com/maps/dir/?api=1&destination=${dst}&travelmode=${gmode}`;
+      return { kind: 'href', href, label: 'Ouvrir l’itinéraire' };
+    }
 
     case 'agenda': {
       const start = resolveDatetimeFr(action.quand, now);
@@ -76,7 +83,7 @@ export function buildDeepLink(action, platform, now) {
       return { kind: 'text', text: "Ça, je ne sais pas encore le faire. Je peux : alarme, minuteur, agenda, SMS/e-mail, itinéraire, appel, ouvrir une app/un réglage, recherche, traduction." };
 
     case 'minuteur':
-      return { kind: 'unsupported', label: 'Minuteur : démo sur le Pixel uniquement' };
+      return { kind: 'unsupported', label: "Minuteur : s'exécute sur le Pixel (compte à rebours)." };
 
     case 'note':
       return { kind: 'download', filename: 'note.txt', text: action.texte || '', label: 'Télécharger la note' };
@@ -85,11 +92,14 @@ export function buildDeepLink(action, platform, now) {
       return { kind: 'href', href: `https://www.qwant.com/?q=${enc(action.requete || '')}`, label: 'Lancer la recherche' };
 
     case 'ouvrir': {
-      const WEB = { youtube: 'https://m.youtube.com', maps: 'https://maps.google.com' };
+      // Sur PC, « appareil photo » -> capture par la webcam du Mac (getUserMedia, contexte localhost sécurisé).
+      if (action.cible === 'appareil_photo' && platform === 'desktop')
+        return { kind: 'webcam', label: 'Prendre la photo' };
+      const WEB = { youtube: 'https://m.youtube.com', maps: 'https://maps.google.com', wikipedia: 'https://fr.wikipedia.org' };
       const href = WEB[action.cible];
       return href
         ? { kind: 'href', href, label: `Ouvrir ${action.cible}` }
-        : { kind: 'unsupported', label: '« Ouvrir » : démo sur le Pixel uniquement' };
+        : { kind: 'unsupported', label: `« Ouvrir ${action.cible} » : s'exécute sur le Pixel.` };
     }
 
     case 'traduction':

@@ -1,8 +1,13 @@
 // web/app.js — logique + rendu « République » (icônes ligne Iconoir). Contrat serveur + deeplinks conservés.
-import { buildDeepLink, extractPhone, callTarget } from './deeplinks.mjs';
+import { buildDeepLink, extractPhone, callTarget } from './deeplinks.mjs?v=3';
 
 const SYSTEM = fetch('system_prompt.txt').then(r => { if (!r.ok) throw new Error('prompt ' + r.status); return r.text(); });
-const platform = () => /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'ios' : 'android';
+const platform = () => {
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+  if (/Android/i.test(ua)) return 'android';
+  return 'desktop';   // PC : les deeplinks basculent en URLs web (Maps, mailto…) ou carte « sur le Pixel »
+};
 const $ = id => document.getElementById(id);
 const icoEl = name => { const s = document.createElement('span'); s.className = 'ico ico-' + name; return s; };
 
@@ -19,7 +24,7 @@ const I18N = {
     phone_ok: 'Téléphone', phone_ko: 'Injoignable', ph_saisie: 'Dites une phrase…',
     aide_gabarits: 'Gabarits d’actions', aide_sous_titre: 'L’entité est déjà sélectionnée, tapez par-dessus.',
     aide_inserer: 'Insérer dans le chat', aide_hint: 'Touchez l’entité pour la remplacer, puis envoyez.',
-    ouvrir: 'Ouvrir', reflechit: 'Luciole réfléchit', traite_en: 'traité en', inconnu: 'Je ne sais pas faire ça.',
+    ouvrir: 'Ouvrir', reflechit: 'Luciole réfléchit', traite_en: 'traité en', inconnu: 'Je ne sais pas faire ça.', prendre_photo: 'Prendre la photo',
   },
   en: {
     demo: 'DEMO', tagline: 'Sovereign AI, 100% on your phone, offline.',
@@ -32,7 +37,7 @@ const I18N = {
     phone_ok: 'Phone', phone_ko: 'Disconnected', ph_saisie: 'Say something…',
     aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected — type over it.',
     aide_inserer: 'Insert into chat', aide_hint: 'Tap the entity to replace it, then send.',
-    ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.',
+    ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.', prendre_photo: 'Take the photo',
   },
 };
 let LANG = 'fr';
@@ -102,12 +107,43 @@ function actionCard(action, secs) {
   else if (link.kind === 'ics') { const a = openBtn(); a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/calendar' })); a.download = link.filename; foot.appendChild(a); }
   else if (link.kind === 'download') { const a = openBtn(); a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/plain' })); a.download = link.filename; foot.appendChild(a); }
   else if (link.kind === 'text') { const p = document.createElement('div'); p.className = 'sub'; p.textContent = link.text; foot.appendChild(p); }
+  else if (link.kind === 'webcam') { foot.appendChild(boutonWebcam(card)); }
   else { const p = document.createElement('div'); p.className = 'proc'; p.textContent = link.label || ''; foot.appendChild(p); }
 
   const proc = document.createElement('span'); proc.className = 'proc';
   if (secs != null) proc.textContent = `${t('traite_en')} ${secs} s`;
   foot.appendChild(proc); card.appendChild(foot); wrap.appendChild(card);
   return wrap;
+}
+
+// ---------------- webcam (démo PC : la page capture la webcam du Mac via getUserMedia ; OK car localhost) ----------------
+function boutonWebcam(card) {
+  const b = document.createElement('button'); b.className = 'btn-open';
+  b.append(document.createTextNode(t('prendre_photo') + ' '), icoEl('flash'));
+  b.addEventListener('click', () => capturerPhoto(card, b));
+  return b;
+}
+async function capturerPhoto(card, btn) {
+  btn.disabled = true;
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    const video = document.createElement('video'); video.srcObject = stream; video.muted = true; video.playsInline = true;
+    await video.play();
+    await new Promise(res => (video.readyState >= 2 ? res() : (video.onloadeddata = res)));
+    const w = video.videoWidth || 1280, h = video.videoHeight || 720;
+    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+    const img = document.createElement('img'); img.className = 'photo'; img.alt = 'photo webcam'; img.src = canvas.toDataURL('image/jpeg', 0.9);
+    card.insertBefore(img, card.querySelector('.foot'));
+    btn.remove(); scroll();
+  } catch (e) {
+    const p = document.createElement('div'); p.className = 'sub'; p.textContent = 'Webcam indisponible : ' + (e.message || e.name || e);
+    card.insertBefore(p, card.querySelector('.foot'));
+    btn.disabled = false;
+  } finally {
+    if (stream) stream.getTracks().forEach(tr => tr.stop());
+  }
 }
 
 async function run(phrase) {
@@ -129,17 +165,18 @@ async function run(phrase) {
 }
 
 // ---------------- Aide : gabarits (les 10 de l'app) ----------------
+// Ordre pensé pour la démo PC : d'abord les actions qui ouvrent un résultat à l'écran.
 const GABARITS = [
-  { key: 'appel', texte: 'appelle Marie Curie', ent: 'Marie Curie' },
-  { key: 'minuteur', texte: 'minuteur de 5 minutes', ent: '5' },
-  { key: 'alarme', texte: 'réveille-moi à 7h30', ent: '7h30' },
-  { key: 'agenda', texte: 'ajoute une réunion demain à 10h', ent: 'une réunion' },
-  { key: 'message', texte: 'envoie un SMS pour dire à bientôt', ent: 'à bientôt' },
   { key: 'itineraire', texte: 'itinéraire vers la gare de Lyon', ent: 'la gare de Lyon' },
   { key: 'recherche', texte: 'cherche la capitale du Pérou', ent: 'la capitale du Pérou' },
   { key: 'traduction', texte: 'traduis bonjour en anglais', ent: 'bonjour' },
+  { key: 'agenda', texte: 'ajoute une réunion demain à 10h', ent: 'une réunion' },
+  { key: 'message', texte: 'écris un mail à propos de la réunion de lundi', ent: 'la réunion de lundi' },
+  { key: 'ouvrir', texte: 'ouvre Wikipédia', ent: 'Wikipédia' },
   { key: 'note', texte: 'note : acheter du pain', ent: 'acheter du pain' },
-  { key: 'ouvrir', texte: 'ouvre YouTube', ent: 'YouTube' },
+  { key: 'appel', texte: 'appelle Marie Curie', ent: 'Marie Curie' },
+  { key: 'minuteur', texte: 'minuteur de 5 minutes', ent: '5' },
+  { key: 'alarme', texte: 'réveille-moi à 7h30', ent: '7h30' },
 ];
 const GLABEL = {
   fr: { appel: 'Appel', minuteur: 'Minuteur', alarme: 'Alarme', agenda: 'Agenda', message: 'Message', itineraire: 'Itinéraire', recherche: 'Recherche', traduction: 'Traduction', note: 'Note', ouvrir: 'Ouvrir' },
@@ -196,5 +233,14 @@ $('inserer').addEventListener('click', () => {
   if (i >= 0) ta.setSelectionRange(i, i + g.ent.length);
 });
 
+// ---------------- volet Aide : rétractable + responsive (tiroir sous 900 px) ----------------
+let aideOuvert = window.innerWidth > 900;
+function paintAide() {
+  $('app').classList.toggle('aide-ferme', !aideOuvert);
+  const b = $('toggle-aide'); if (b) b.classList.toggle('on', aideOuvert);
+}
+$('toggle-aide').addEventListener('click', () => { aideOuvert = !aideOuvert; paintAide(); });
+
 applyLang();
 pingConn();
+paintAide();
