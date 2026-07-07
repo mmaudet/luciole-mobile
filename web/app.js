@@ -111,7 +111,7 @@ function actionCard(action, secs) {
   const foot = document.createElement('div'); foot.className = 'foot';
   const link = buildDeepLink(action, platform(), new Date(), LANG);
   const openBtn = () => { const a = document.createElement('a'); a.className = 'btn-open'; a.append(document.createTextNode(t('ouvrir') + ' '), icoEl('arrow')); return a; };
-  if (link.kind === 'href') { const a = openBtn(); a.href = link.href; foot.appendChild(a); }
+  if (link.kind === 'href') { const a = openBtn(); a.href = link.href; if (/^https?:/i.test(link.href)) { a.target = '_blank'; a.rel = 'noopener'; } foot.appendChild(a); }
   else if (link.kind === 'ics') { const a = openBtn(); a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/calendar' })); a.download = link.filename; foot.appendChild(a); }
   else if (link.kind === 'download') { const a = openBtn(); a.href = URL.createObjectURL(new Blob([link.text], { type: 'text/plain' })); a.download = link.filename; foot.appendChild(a); }
   else if (link.kind === 'text') { const p = document.createElement('div'); p.className = 'sub'; p.textContent = link.text; foot.appendChild(p); }
