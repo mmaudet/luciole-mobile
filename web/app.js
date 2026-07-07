@@ -25,7 +25,7 @@ const I18N = {
     aide_gabarits: 'Gabarits d’actions', aide_sous_titre: 'L’entité est déjà sélectionnée, tapez par-dessus.',
     aide_inserer: 'Insérer dans le chat', aide_hint: 'Touchez l’entité pour la remplacer, puis envoyez.',
     ouvrir: 'Ouvrir', reflechit: 'Luciole réfléchit', traite_en: 'traité en', inconnu: 'Je ne sais pas faire ça.', prendre_photo: 'Prendre la photo',
-    masquer_aide: 'Masquer l’aide', afficher_aide: 'Afficher l’aide',
+    masquer_aide: 'Masquer l’aide', afficher_aide: 'Afficher l’aide', capturer: 'Capturer',
   },
   en: {
     demo: 'DEMO', tagline: 'Sovereign AI, 100% on your phone, offline.',
@@ -39,7 +39,7 @@ const I18N = {
     aide_gabarits: 'Action templates', aide_sous_titre: 'The entity is preselected — type over it.',
     aide_inserer: 'Insert into chat', aide_hint: 'Tap the entity to replace it, then send.',
     ouvrir: 'Open', reflechit: 'Luciole is thinking', traite_en: 'done in', inconnu: 'I can’t do that.', prendre_photo: 'Take the photo',
-    masquer_aide: 'Hide help', afficher_aide: 'Show help',
+    masquer_aide: 'Hide help', afficher_aide: 'Show help', capturer: 'Capture',
   },
 };
 let LANG = 'fr';
@@ -118,32 +118,37 @@ function actionCard(action, secs) {
   return wrap;
 }
 
-// ---------------- webcam (démo PC : la page capture la webcam du Mac via getUserMedia ; OK car localhost) ----------------
+// ---------------- webcam (démo PC : aperçu live puis capture ; getUserMedia OK car localhost) ----------------
 function boutonWebcam(card) {
   const b = document.createElement('button'); b.className = 'btn-open';
   b.append(document.createTextNode(t('prendre_photo') + ' '), icoEl('flash'));
-  b.addEventListener('click', () => capturerPhoto(card, b));
+  b.onclick = () => ouvrirWebcam(card, b);
   return b;
 }
-async function capturerPhoto(card, btn) {
+async function ouvrirWebcam(card, btn) {
   btn.disabled = true;
   let stream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-    const video = document.createElement('video'); video.srcObject = stream; video.muted = true; video.playsInline = true;
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
+    const video = document.createElement('video'); video.className = 'photo live'; video.srcObject = stream;
+    video.muted = true; video.playsInline = true; video.autoplay = true;
     await video.play();
-    await new Promise(res => (video.readyState >= 2 ? res() : (video.onloadeddata = res)));
-    const w = video.videoWidth || 1280, h = video.videoHeight || 720;
-    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(video, 0, 0, w, h);
-    const img = document.createElement('img'); img.className = 'photo'; img.alt = 'photo webcam'; img.src = canvas.toDataURL('image/jpeg', 0.9);
-    card.insertBefore(img, card.querySelector('.foot'));
-    btn.remove(); scroll();
+    card.insertBefore(video, card.querySelector('.foot'));
+    // L'aperçu laisse la webcam régler son exposition avant la capture -> plus de photo noire.
+    btn.textContent = t('capturer'); btn.disabled = false;
+    btn.onclick = () => {
+      const w = video.videoWidth || 1280, h = video.videoHeight || 720;
+      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+      const img = document.createElement('img'); img.className = 'photo'; img.alt = 'photo webcam'; img.src = canvas.toDataURL('image/jpeg', 0.92);
+      video.replaceWith(img);
+      stream.getTracks().forEach(tr => tr.stop());
+      btn.remove(); scroll();
+    };
+    scroll();
   } catch (e) {
     const p = document.createElement('div'); p.className = 'sub'; p.textContent = 'Webcam indisponible : ' + (e.message || e.name || e);
-    card.insertBefore(p, card.querySelector('.foot'));
-    btn.disabled = false;
-  } finally {
+    card.insertBefore(p, card.querySelector('.foot')); btn.disabled = false;
     if (stream) stream.getTracks().forEach(tr => tr.stop());
   }
 }
