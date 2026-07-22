@@ -15,5 +15,6 @@ sealed interface Action {
     data class Recherche(val requete: String) : Action
     data class Ouvrir(val cible: Cible) : Action
     data class Traduction(val texte: String, val cible: LangueCible, val resultat: String) : Action
+    data object ScannerCarte : Action
     data object Inconnu : Action
 }

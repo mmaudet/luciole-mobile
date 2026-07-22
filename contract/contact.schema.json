@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Luciole ContactCard",
+  "description": "Contrat JSON pour la structuration d'une carte de visite (distinct du contrat Action).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "full_name": { "type": "string" },
+    "first_name": { "type": "string" },
+    "last_name": { "type": "string" },
+    "company": { "type": "string" },
+    "job_title": { "type": "string" },
+    "phones": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "emails": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "website": { "type": "string" },
+    "address": { "type": "string" },
+    "note": { "type": "string" }
+  }
+}

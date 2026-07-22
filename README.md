@@ -54,7 +54,8 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 ## 📱 Fonctionnalités
 
 - **Chat** : tapez (ou dictez) une phrase, obtenez une action. La **durée de traitement** s'affiche sur chaque réponse (« traité en 3,7 s »).
-- **11 actions** déclenchées par des **intents Android natifs** : ⏰ alarme, ⏱ minuteur, 📅 agenda (avec date et heure réelles), ✉️ message (e‑mail / SMS), 📞 **appel par numéro ou par nom** (résolu depuis vos contacts), 🗺 itinéraire, 🔍 recherche, 📲 ouvrir une app, 🔤 traduction, 📝 note, et un repli **« je ne sais pas »** assumé quand la demande sort du cadre.
+- **11 actions** déclenchées par des **intents Android natifs** : ⏰ alarme, ⏱ minuteur, 📅 agenda (avec date et heure réelles), ✉️ message (e‑mail / SMS), 📞 **appel par numéro ou par nom** (résolu depuis vos contacts), 🗺 itinéraire, 🔍 recherche, 📲 ouvrir une app, 🔤 traduction, 📝 note, 📇 **scanner une carte de visite**, et un repli **« je ne sais pas »** assumé quand la demande sort du cadre.
+- **Scan carte de visite** : capture CameraX → correction OpenCV → OCR Tesseract local → structuration `ContactCard` par Luciole‑1B → brouillon éditable → insertion Contacts Android ou export `.vcf`. **Luciole‑1B ne fait pas l'OCR image seul** : il structure le texte produit par Tesseract.
 - **Bouton Aide** : un panneau de **gabarits** (« itinéraire vers … ») où l'entité est **pré‑sélectionnée**, vous tapez directement par‑dessus.
 - **Sécurité** : `ACTION_DIAL` (jamais d'appel automatique), aucun message envoyé automatiquement (l'éditeur s'ouvre, vous validez).
 - **Bilingue** 🇫🇷 / 🇬🇧.
@@ -116,7 +117,8 @@ Chaque carte a un bouton **Copier** / **Partager**, et le SSID et le mot de pass
 | **Contrat** | Prompt système et règles d'extraction (numéro, nom, **date**) re‑portés en Kotlin (parité testée avec la référence Python) |
 | **Statistiques** | Métriques Prometheus `--metrics` du serveur, lues chaque seconde |
 | **Robustesse** | timeout 60 s, **pré‑chauffage** du prompt au lancement, `configChanges` (survit au pliage du Pixel Fold), cleartext limité à `localhost` |
-| **Tests** | **69** tests unitaires et Robolectric (modèle, parsing JSON, extraction, contacts, mapping d'intents, i18n) |
+| **Tests** | **85+** tests unitaires et Robolectric (modèle, parsing JSON, extraction, contacts, scan/OCR, VCF, mapping d'intents, i18n) |
+| **Scan carte** | CameraX + OpenCV + Tesseract4Android (100 % local, sans Google Play Services) ; structuration contact via `Cerveau.extractContact()` |
 
 L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fold** : appel vers le Téléphone, itinéraire vers Maps, minuteur vers l'Horloge, agenda vers l'Agenda (avec l'heure), confirmés au logcat.
 
@@ -126,7 +128,7 @@ L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fo
 |---|---|
 | `android/` | **L'application native** (le cœur de cette démo) |
 | `server/` | Scripts de lancement du `llama-server` on‑device (Termux) |
-| `contract/` | La **grammaire GBNF** et le schéma des actions |
+| `contract/` | La **grammaire GBNF**, le schéma des actions et le schéma `ContactCard` |
 | `web/` | Un client **web** (même design « République » que l'app) servi par le téléphone, pour faire tester depuis un navigateur |
 | `dispatcher/` | Le dispatcher Python de référence (preuve de concept initiale) |
 
@@ -142,6 +144,7 @@ L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fo
    ./gradlew :app:assembleDebug
    adb install -r app/build/outputs/apk/debug/app-debug.apk
    ```
+   Pour le scan OCR, copiez `fra.traineddata` et `eng.traineddata` dans `android/app/src/main/assets/tesseract/tessdata/` (voir le README dans ce dossier).
 4. Ouvrir **Luciole**, dire une phrase, regarder l'action se déclencher, et l'onglet **Statistiques** monter, **sans réseau**.
 
 ### 📦 Télécharger l'APK sans rien compiler (GitHub Actions)
@@ -161,3 +164,83 @@ Distribué sous **GNU Affero General Public License v3.0**, voir [`LICENSE`](LIC
 - Inférence on‑device : **[llama.cpp](https://github.com/ggerganov/llama.cpp)**.
 
 > *Souveraineté numérique : un modèle français, sur votre téléphone, qui n'envoie rien à personne.* 🔦
+
+## Ajout reconnaissance de carter de visite vers Vcf 
+
+1. Préparer les modèles OCR (sur le PC, avant compilation)
+```
+cd /home/monsieurb/Documents/devel/luciole-mobile/android/app/src/main/assets/tesseract/tessdata
+curl -L -O https://github.com/tesseract-ocr/tessdata_fast/raw/main/fra.traineddata
+curl -L -O https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata
+```
+Sans ces fichiers, l’OCR échouera avec un message du type « Modèle OCR manquant ».
+
+2. Compiler et installer l’APK
+cd /home/monsieurb/Documents/devel/luciole-mobile/android
+./gradlew :app:assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+Vérifier que le téléphone est bien détecté : adb devices.
+
+3. Lancer Luciole-1B sur le téléphone (Termux)
+Le scan a deux étapes : OCR local (Tesseract) puis structuration (HTTP vers 127.0.0.1:8080). Le serveur doit tourner sur le téléphone, pas sur le PC.
+
+Copier le dépôt + modèle GGUF sur le téléphone (ou cloner dans Termux).
+Dans Termux :
+cd ~/luciole-mobile   # adapter le chemin
+./server/run-server.sh
+Le script démarre llama-server sur le port 8080 avec la grammaire des actions. La structuration contact (extractContact) utilise le même serveur, sans grammaire GBNF.
+
+Astuce démo : la 1ʳᵉ requête LLM est lente (~14 s). L’app pré-chauffe au lancement ; attendre quelques secondes avant le premier scan.
+
+4. Parcours de test dans l’app
+Option A — Onglet Scan
+Ouvrir Luciole
+Accepter la caméra quand demandé
+Aller à l’onglet Scan
+Cadrer une carte de visite, appuyer sur Capturer
+Attendre la progression : correction → OCR → structuration Luciole
+Vérifier le brouillon (champs + texte OCR brut)
+Tester Créer le contact (écran Contacts prérempli) et Exporter VCF
+Option B — Depuis le chat
+Dire : « scanne une carte de visite »
+Le flux Scan s’ouvre automatiquement
+Même enchaînement qu’en option A
+5. Ce qu’il faut valider
+Étape	Succès attendu
+Capture
+Aperçu caméra live
+Scan OpenCV
+Image redressée (moins d’inclinaison)
+OCR
+Texte brut visible dans le brouillon
+Luciole
+Champs nom / société / tel / email préremplis
+Contact
+App Contacts s’ouvre avec les champs remplis
+VCF
+Partage d’un fichier .vcf importable
+6. Dépannage rapide
+Symptôme	Cause probable	Action
+« Serveur injoignable » (chat)
+llama-server arrêté
+Relancer ./server/run-server.sh dans Termux
+« Modèle OCR manquant »
+traineddata absents de l’APK
+Recopier les fichiers, recompiler, réinstaller
+« OCR vide »
+Photo floue / mal cadrée
+Reprendre avec meilleure lumière, carte bien visible
+« Document non détecté »
+Contour non trouvé
+Recadrer ou utiliser une carte sur fond contrasté
+Structuration vide
+LLM indisponible ou OCR pauvre
+Vérifier Termux ; les tel/email regex restent via OCR
+Caméra refusée
+Permission
+Paramètres → Luciole → Autoriser la caméra
+Logs utiles :
+
+```
+adb logcat -s Luciole
+```

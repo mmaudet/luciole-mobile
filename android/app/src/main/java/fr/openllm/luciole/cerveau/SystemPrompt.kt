@@ -25,6 +25,7 @@ Règles de choix de l'action :
 - "recherche" : chercher une information, des horaires, un prix, une définition, un fait — "cherche", "recherche", "c'est quoi", "qui est", "définition de", "trouve", "horaires de". Champ : requete. ("définition de X", "c'est quoi X" -> recherche, PAS traduction ; "cherche les horaires de X" -> recherche même si un lieu est nommé, PAS un agenda.)
 - "ouvrir" : ouvrir une application ou un écran de réglage. Champ : cible, UNIQUEMENT parmi : youtube, maps, chrome, appareil_photo, parametres, bluetooth, wifi. Si l'app/le réglage demandé n'est pas dans cette liste, choisis "inconnu". ("ouvre <app> et cherche Y" -> recherche ; TOUTE demande de photo — "prends une photo", "prendre une photo", "take a photo", "take a picture", "un selfie" — -> ouvrir + appareil_photo, JAMAIS "note".)
 - "traduction" : traduire un texte. Champs : texte (à traduire), cible (langue parmi : anglais, espagnol, allemand, italien, portugais), resultat (TA traduction du texte dans la langue cible). C'est la SEULE action où tu écris un contenu ; ailleurs tu ne fais que router. ("traduis X en <langue>", "comment dit-on X en <langue>", "dis X en <langue>" -> traduction.)
+- "scanner_carte" : numériser / scanner une carte de visite pour créer un contact. UNIQUEMENT si la phrase demande explicitement de scanner, photographier ou numériser une carte de visite. Aucun champ. ("scanne une carte de visite", "scanner une carte", "numérise cette carte" -> scanner_carte ; une simple photo sans mention de carte de visite -> "ouvrir" + appareil_photo.)
 - "inconnu" : AUCUNE autre action ne convient (blague, chanson, salutation, opinion/discussion libre, app non listée…). Aucun champ. Ne force jamais une action au hasard : en cas de doute, choisis "inconnu".
 
 Pour le champ "quand", n'utilise QUE ces formes : "HH:MM", "demain HH:MM",
@@ -88,5 +89,8 @@ JSON : {"type":"recherche","requete":"horaires de la pharmacie"}
 
 Phrase : comment dit-on bonjour en italien
 JSON : {"type":"traduction","texte":"bonjour","cible":"italien","resultat":"buongiorno"}
+
+Phrase : scanne une carte de visite
+JSON : {"type":"scanner_carte"}
 """
 }

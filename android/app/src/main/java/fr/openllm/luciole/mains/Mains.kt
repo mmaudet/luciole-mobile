@@ -14,6 +14,7 @@ sealed interface Sortie {
     data class Lancer(val spec: IntentSpec, val libelle: String) : Sortie
     data class Afficher(val type: AffichageType, val texte: String) : Sortie
     data class ContactIntrouvable(val nom: String) : Sortie
+    data object OuvrirScanCarte : Sortie
 }
 
 object Mains {
@@ -68,6 +69,7 @@ object Mains {
         is Action.Ouvrir -> Sortie.Lancer(ouvrir(action.cible), "act_ouvrir")
         is Action.Note -> Sortie.Afficher(AffichageType.NOTE, action.texte)
         is Action.Traduction -> Sortie.Afficher(AffichageType.TRADUCTION, action.resultat)
+        Action.ScannerCarte -> Sortie.OuvrirScanCarte
         Action.Inconnu -> Sortie.Afficher(AffichageType.INCONNU, "")
     }
 

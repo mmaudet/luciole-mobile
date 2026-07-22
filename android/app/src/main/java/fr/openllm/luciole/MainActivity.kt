@@ -29,12 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import fr.openllm.luciole.cerveau.CerveauServeur
+import fr.openllm.luciole.contact.ContactInsertIntent
+import fr.openllm.luciole.contact.VcfShare
 import fr.openllm.luciole.mains.Contacts
 import fr.openllm.luciole.mains.Mains.lancer
 import fr.openllm.luciole.mains.Sortie
 import fr.openllm.luciole.moniteur.MoniteurViewModel
+import fr.openllm.luciole.ocr.TesseractOcrEngine
+import fr.openllm.luciole.scan.OpenCvScanEngine
 import fr.openllm.luciole.ui.ChatViewModel
 import fr.openllm.luciole.ui.LucioleApp
+import fr.openllm.luciole.ui.ScanCarteViewModel
 import fr.openllm.luciole.ui.theme.Fond
 import fr.openllm.luciole.ui.theme.LucioleTheme
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +82,14 @@ class MainActivity : ComponentActivity() {
             try { Contacts.resolve(nom, contentResolver) } catch (e: Exception) { null }
         }
 
+        val scanVm = ScanCarteViewModel(
+            scanEngine = OpenCvScanEngine(),
+            ocrEngine = TesseractOcrEngine(this),
+            cerveau = cerveau,
+        )
+
+        OpenCvScanEngine.ensureOpenCv()
+
         val moniteurVm = MoniteurViewModel {
             withContext(Dispatchers.IO) {
                 client.newCall(Request.Builder().url("$base/metrics").build())
@@ -107,10 +120,12 @@ class MainActivity : ComponentActivity() {
                     val chatState by chatVm.state.collectAsState()
                     val messages = chatState.messages
                     var dernierIndex by rememberSaveable { mutableIntStateOf(-1) }
+                    var requestOpenScan by rememberSaveable { mutableStateOf(false) }
                     LaunchedEffect(messages.size) {
                         for (i in (dernierIndex + 1) until messages.size) {
                             val sortie = messages[i].sortie
                             if (sortie is Sortie.Lancer) this@MainActivity.lancer(sortie.spec)
+                            if (sortie == Sortie.OuvrirScanCarte) requestOpenScan = true
                         }
                         if (messages.isNotEmpty()) dernierIndex = messages.size - 1
                     }
@@ -125,6 +140,7 @@ class MainActivity : ComponentActivity() {
                             expanded = expanded,
                             chatVm = chatVm,
                             moniteurVm = moniteurVm,
+                            scanVm = scanVm,
                             langue = langue,
                             onSetLangue = { langue = it },
                             onEnvoyer = { texte ->
@@ -134,6 +150,18 @@ class MainActivity : ComponentActivity() {
                                 chatVm.envoyer(texte)
                             },
                             onRelancer = { spec -> this@MainActivity.lancer(spec) },
+                            onOuvrirScanCarte = { requestOpenScan = true },
+                            onCreateContact = { card ->
+                                startActivity(ContactInsertIntent.build(card))
+                            },
+                            onExportVcf = { card ->
+                                startActivity(android.content.Intent.createChooser(
+                                    VcfShare.shareIntent(this@MainActivity, card),
+                                    getString(R.string.scan_exporter_vcf),
+                                ))
+                            },
+                            requestOpenScan = requestOpenScan,
+                            onScanOpened = { requestOpenScan = false },
                         )
                     }
                 }

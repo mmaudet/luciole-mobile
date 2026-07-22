@@ -29,6 +29,7 @@ object ActionJson {
             "traduction" -> runCatching { LangueCible.valueOf(s("cible").orEmpty().uppercase()) }
                 .getOrNull()?.let { Action.Traduction(s("texte").orEmpty(), it, s("resultat").orEmpty()) }
                 ?: Action.Inconnu
+            "scanner_carte" -> Action.ScannerCarte
             else -> Action.Inconnu
         }
     }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.EditNote
@@ -150,5 +151,6 @@ fun actionIcon(key: String): ImageVector = when {
     key.contains("ouvrir") -> Icons.Outlined.GridView
     key.contains("traduction") || key.contains("traduire") -> Icons.Outlined.Translate
     key.contains("note") -> Icons.Outlined.EditNote
+    key.contains("scanner") || key.contains("carte") -> Icons.Outlined.Badge
     else -> Icons.Outlined.AutoAwesome
 }

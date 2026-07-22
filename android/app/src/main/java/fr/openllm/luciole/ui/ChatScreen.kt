@@ -74,6 +74,7 @@ fun ChatPane(
     onRelancer: (IntentSpec) -> Unit,
     onEffacer: () -> Unit,
     onOuvrirAide: (() -> Unit)?,
+    onOuvrirScanCarte: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
@@ -120,7 +121,7 @@ fun ChatPane(
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = if (expanded) 34.dp else 16.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(13.dp),
         ) {
-            items(messages) { m -> MessageItem(m, expanded, onRelancer) }
+            items(messages) { m -> MessageItem(m, expanded, onRelancer, onOuvrirScanCarte) }
         }
         if (enCours) LinearProgressIndicator(Modifier.fillMaxWidth())
 
@@ -171,7 +172,7 @@ fun ChatPane(
 }
 
 @Composable
-private fun MessageItem(m: Message, expanded: Boolean, onRelancer: (IntentSpec) -> Unit) {
+private fun MessageItem(m: Message, expanded: Boolean, onRelancer: (IntentSpec) -> Unit, onOuvrirScanCarte: () -> Unit) {
     val maxBubble = if (expanded) 540.dp else 320.dp
     if (m.role == Role.USER) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -186,16 +187,31 @@ private fun MessageItem(m: Message, expanded: Boolean, onRelancer: (IntentSpec) 
         return
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-        Box(Modifier.widthIn(max = maxBubble)) { LucioleCarte(m, onRelancer) }
+        Box(Modifier.widthIn(max = maxBubble)) { LucioleCarte(m, onRelancer, onOuvrirScanCarte) }
     }
 }
 
 @Composable
-private fun LucioleCarte(m: Message, onRelancer: (IntentSpec) -> Unit) {
+private fun LucioleCarte(m: Message, onRelancer: (IntentSpec) -> Unit, onOuvrirScanCarte: () -> Unit) {
     val forme = RoundedCornerShape(topStart = 6.dp, topEnd = 18.dp, bottomEnd = 18.dp, bottomStart = 18.dp)
     val base = Modifier.fillMaxWidth().clip(forme).background(Surface).border(1.dp, Bordure, forme).padding(15.dp)
 
     when (val s = m.sortie) {
+        Sortie.OuvrirScanCarte -> {
+            Column(base) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    IconeChip(actionKey = "scanner_carte")
+                    Text(stringResource(R.string.act_scanner_carte), fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Encre, modifier = Modifier.weight(1f))
+                    Box(
+                        Modifier.clip(RoundedCornerShape(11.dp)).background(MaterialTheme.colorScheme.primary)
+                            .clickable { onOuvrirScanCarte() }.padding(horizontal = 18.dp, vertical = 11.dp),
+                    ) {
+                        Text(stringResource(R.string.bouton_ouvrir), color = Surface, fontWeight = FontWeight.SemiBold, fontSize = 13.5.sp)
+                    }
+                }
+                if (m.dureeMs != null) ProcNote(m.dureeMs)
+            }
+        }
         is Sortie.Lancer -> {
             val label = stringResource(libelleRes(s.libelle)).substringAfter(' ', stringResource(libelleRes(s.libelle)))
             Column(base) {
@@ -272,5 +288,6 @@ private fun libelleRes(libelle: String): Int = when (libelle) {
     "act_itineraire" -> R.string.act_itineraire
     "act_recherche" -> R.string.act_recherche
     "act_ouvrir" -> R.string.act_ouvrir
+    "act_scanner_carte" -> R.string.act_scanner_carte
     else -> R.string.act_ouvrir
 }

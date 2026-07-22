@@ -93,4 +93,32 @@
     <string name="partage_demarrage">Démarrage du hotspot…</string>
     <string name="partage_wifi_titre">1. Rejoindre le WiFi</string>
     <string name="partage_url_titre">2. Ouvrir la page</string>
+
+    <!-- Scan carte de visite -->
+    <string name="nav_scan">Scan</string>
+    <string name="scan_titre">Scanner une carte</string>
+    <string name="scan_instructions">Cadrez la carte de visite, puis capturez.</string>
+    <string name="scan_capturer">Capturer</string>
+    <string name="scan_autoriser_camera">Autoriser la caméra</string>
+    <string name="scan_en_cours">Correction de l\'image…</string>
+    <string name="scan_ocr_en_cours">Reconnaissance du texte…</string>
+    <string name="scan_structuration">Structuration par Luciole…</string>
+    <string name="scan_brouillon_titre">Vérifier le contact</string>
+    <string name="scan_brouillon_sous_titre">Corrigez les champs avant de créer le contact ou d\'exporter le VCF.</string>
+    <string name="scan_ocr_brut">Texte OCR brut</string>
+    <string name="scan_creer_contact">Créer le contact</string>
+    <string name="scan_exporter_vcf">Exporter VCF</string>
+    <string name="scan_reprendre">Reprendre la capture</string>
+    <string name="scan_retour">Retour</string>
+    <string name="scan_champ_nom">Nom complet</string>
+    <string name="scan_champ_prenom">Prénom</string>
+    <string name="scan_champ_nom_famille">Nom de famille</string>
+    <string name="scan_champ_societe">Société</string>
+    <string name="scan_champ_poste">Poste</string>
+    <string name="scan_champ_tel">Téléphone(s)</string>
+    <string name="scan_champ_email">E-mail(s)</string>
+    <string name="scan_champ_site">Site web</string>
+    <string name="scan_champ_adresse">Adresse</string>
+    <string name="scan_champ_note">Note</string>
+    <string name="act_scanner_carte">📇 Scanner une carte</string>
 </resources>
