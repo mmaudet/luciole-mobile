@@ -2,20 +2,36 @@ package fr.openllm.luciole.contact
 
 import fr.openllm.luciole.ocr.OcrResult
 
-/** Fusionne la structuration Luciole et les extractions regex OCR. */
+/**
+ * Fusionne trois sources, par priorité de fiabilité :
+ * 1. Regex OCR (tél / email / url) — toujours prioritaire
+ * 2. Luciole (sémantique) si présent et non vide
+ * 3. Heuristiques déterministes (nom / société / poste / adresse)
+ */
 object ContactDraftMerge {
     fun merge(llm: ContactCard?, ocr: OcrResult): ContactCard {
+        val heuristic = ContactHeuristicParser.parse(ocr)
         val base = llm ?: ContactCard()
-        return base.copy(
-            phones = mergeStrings(base.phones, ocr.phones),
-            emails = mergeStrings(base.emails, ocr.emails),
-            website = base.website?.takeIf { it.isNotBlank() } ?: ocr.urls.firstOrNull(),
+        return ContactCard(
+            fullName = prefer(base.fullName, heuristic.fullName),
+            firstName = prefer(base.firstName, heuristic.firstName),
+            lastName = prefer(base.lastName, heuristic.lastName),
+            company = prefer(base.company, heuristic.company),
+            jobTitle = prefer(base.jobTitle, heuristic.jobTitle),
+            phones = mergeStrings(ocr.phones, base.phones + heuristic.phones),
+            emails = mergeStrings(ocr.emails, base.emails + heuristic.emails),
+            website = prefer(ocr.urls.firstOrNull(), prefer(base.website, heuristic.website)),
+            address = prefer(base.address, heuristic.address),
+            note = prefer(base.note, heuristic.note),
         )
     }
 
-    private fun mergeStrings(a: List<String>, b: List<String>): List<String> {
+    private fun prefer(primary: String?, fallback: String?): String? =
+        primary?.takeIf { it.isNotBlank() } ?: fallback?.takeIf { it.isNotBlank() }
+
+    private fun mergeStrings(preferred: List<String>, extra: List<String>): List<String> {
         val seen = linkedSetOf<String>()
-        (a + b).forEach { v ->
+        (preferred + extra).forEach { v ->
             val n = v.trim()
             if (n.isNotEmpty()) seen.add(n)
         }
