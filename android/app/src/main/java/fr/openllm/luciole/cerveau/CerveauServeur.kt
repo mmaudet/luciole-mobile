@@ -1,5 +1,7 @@
 package fr.openllm.luciole.cerveau
 
+import fr.openllm.luciole.contact.ContactCard
+import fr.openllm.luciole.contact.ContactCardJson
 import fr.openllm.luciole.model.Action
 import fr.openllm.luciole.model.ActionJson
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +59,45 @@ class CerveauServeur(
             }
         } catch (e: Exception) {
             throw CerveauIndisponible(e)
+        }
+    }
+
+    override suspend fun extractContact(rawText: String): ContactCard? = withContext(Dispatchers.IO) {
+        val ocrHints = fr.openllm.luciole.ocr.OcrPostProcessor.process(rawText)
+        val hints = ContactHints(
+            phones = ocrHints.phones,
+            emails = ocrHints.emails,
+            urls = ocrHints.urls,
+        )
+        val body = buildJsonObject {
+            put("temperature", 0)
+            put("stream", false)
+            putJsonArray("messages") {
+                addJsonObject { put("role", "system"); put("content", ContactPrompt.FR) }
+                addJsonObject {
+                    put("role", "user")
+                    put("content", ContactPrompt.userMessage(rawText, hints))
+                }
+            }
+        }.toString()
+        val req = Request.Builder()
+            .url("$baseUrl/v1/chat/completions")
+            .post(body.toRequestBody(jsonMedia))
+            .build()
+        try {
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@withContext null
+                val txt = resp.body?.string().orEmpty()
+                val content = json.parseToJsonElement(txt)
+                    .jsonObject["choices"]?.jsonArray?.get(0)
+                    ?.jsonObject?.get("message")?.jsonObject?.get("content")
+                    ?.jsonPrimitive?.content.orEmpty()
+                // Si la grammaire locale n'autorise pas encore creer_contact, le JSON est invalide → null
+                // (les heuristiques prennent le relais dans ContactDraftMerge).
+                ContactCardJson.parseFromLlm(content)
+            }
+        } catch (_: Exception) {
+            null
         }
     }
 }

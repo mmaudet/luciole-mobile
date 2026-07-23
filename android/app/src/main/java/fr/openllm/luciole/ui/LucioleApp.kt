@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Wifi
@@ -64,21 +65,45 @@ import fr.openllm.luciole.ui.theme.VertClair
 private const val CHAT = 0
 private const val AIDE = 1
 private const val STATS = 2
-private const val PARTAGE = 3
+private const val SCAN = 3
+private const val PARTAGE = 4
 
 @Composable
 fun LucioleApp(
     expanded: Boolean,
     chatVm: ChatViewModel,
     moniteurVm: MoniteurViewModel,
+    scanVm: ScanCarteViewModel,
     langue: String,
     onSetLangue: (String) -> Unit,
     onEnvoyer: (String) -> Unit,
     onRelancer: (IntentSpec) -> Unit,
+    onOuvrirScanCarte: () -> Unit,
+    onCreateContact: (fr.openllm.luciole.contact.ContactCard) -> Unit,
+    onExportVcf: (fr.openllm.luciole.contact.ContactCard) -> Unit,
+    requestOpenScan: Boolean = false,
+    onScanOpened: () -> Unit = {},
 ) {
     var entered by rememberSaveable { mutableStateOf(false) }
     if (!entered) {
         OnboardingScreen(expanded, langue, onSetLangue, onCommencer = { entered = true })
+        return
+    }
+
+    var showScan by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(requestOpenScan) {
+        if (requestOpenScan) {
+            showScan = true
+            onScanOpened()
+        }
+    }
+    if (showScan) {
+        ScanCarteScreen(
+            viewModel = scanVm,
+            onBack = { showScan = false; scanVm.reset() },
+            onCreateContact = { card -> onCreateContact(card); showScan = false; scanVm.reset() },
+            onExportVcf = { card -> onExportVcf(card) },
+        )
         return
     }
 
@@ -117,6 +142,8 @@ fun LucioleApp(
             onRelancer = onRelancer,
             onEffacer = { chatVm.effacer() },
             onOuvrirAide = if (withAideButton) ({ dest = AIDE }) else null,
+            onOuvrirScanCarte = { showScan = true },
+            onCreerContact = onCreateContact,
             modifier = mod,
         )
     }
@@ -126,6 +153,14 @@ fun LucioleApp(
             NavRail(dest, onSelect = { dest = it })
             when (dest) {
                 STATS -> StatistiquesScreen(moniteurVm, expanded = true, modifier = Modifier.weight(1f).fillMaxHeight())
+                SCAN -> Box(Modifier.weight(1f).fillMaxHeight()) {
+                    ScanCarteScreen(
+                        viewModel = scanVm,
+                        onBack = { dest = CHAT },
+                        onCreateContact = onCreateContact,
+                        onExportVcf = onExportVcf,
+                    )
+                }
                 PARTAGE -> PartageScreen(expanded = true, modifier = Modifier.weight(1f).fillMaxHeight())
                 else -> Row(Modifier.weight(1f).fillMaxHeight()) {
                     chatPane(Modifier.weight(1f).fillMaxHeight(), false)
@@ -144,6 +179,12 @@ fun LucioleApp(
                 when (dest) {
                     AIDE -> AideScreen(expanded = false, onInserer = inserer)
                     STATS -> StatistiquesScreen(moniteurVm, expanded = false)
+                    SCAN -> ScanCarteScreen(
+                        viewModel = scanVm,
+                        onBack = { dest = CHAT },
+                        onCreateContact = onCreateContact,
+                        onExportVcf = onExportVcf,
+                    )
                     PARTAGE -> PartageScreen(expanded = false)
                     else -> chatPane(Modifier.fillMaxSize(), true)
                 }
@@ -165,6 +206,8 @@ private fun NavRail(dest: Int, onSelect: (Int) -> Unit) {
         RailItem(Icons.Outlined.ChatBubbleOutline, stringResource(R.string.nav_chat), dest == CHAT) { onSelect(CHAT) }
         Spacer(Modifier.size(8.dp))
         RailItem(Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
+        Spacer(Modifier.size(8.dp))
+        RailItem(Icons.Outlined.DocumentScanner, stringResource(R.string.nav_scan), dest == SCAN) { onSelect(SCAN) }
         Spacer(Modifier.size(8.dp))
         RailItem(Icons.Outlined.QrCode2, stringResource(R.string.nav_partage), dest == PARTAGE) { onSelect(PARTAGE) }
         Spacer(Modifier.weight(1f))
@@ -200,6 +243,7 @@ private fun BottomNav(dest: Int, onSelect: (Int) -> Unit) {
             BottomItem(Modifier.weight(1f), Icons.Outlined.ChatBubbleOutline, stringResource(R.string.nav_chat), dest == CHAT) { onSelect(CHAT) }
             BottomItem(Modifier.weight(1f), Icons.AutoMirrored.Outlined.HelpOutline, stringResource(R.string.nav_aide), dest == AIDE) { onSelect(AIDE) }
             BottomItem(Modifier.weight(1f), Icons.Outlined.BarChart, stringResource(R.string.nav_stats), dest == STATS) { onSelect(STATS) }
+            BottomItem(Modifier.weight(1f), Icons.Outlined.DocumentScanner, stringResource(R.string.nav_scan), dest == SCAN) { onSelect(SCAN) }
             BottomItem(Modifier.weight(1f), Icons.Outlined.QrCode2, stringResource(R.string.nav_partage), dest == PARTAGE) { onSelect(PARTAGE) }
         }
     }

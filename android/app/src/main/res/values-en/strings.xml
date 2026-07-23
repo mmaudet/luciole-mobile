@@ -93,4 +93,32 @@
     <string name="partage_demarrage">Starting hotspot…</string>
     <string name="partage_wifi_titre">1. Join the WiFi</string>
     <string name="partage_url_titre">2. Open the page</string>
+
+    <string name="nav_scan">Scan</string>
+    <string name="scan_titre">Scan a business card</string>
+    <string name="scan_instructions">Frame the business card, then capture.</string>
+    <string name="scan_capturer">Capture</string>
+    <string name="scan_autoriser_camera">Allow camera</string>
+    <string name="scan_en_cours">Correcting image…</string>
+    <string name="scan_ocr_en_cours">Recognizing text…</string>
+    <string name="scan_structuration">Structuring with Luciole…</string>
+    <string name="scan_brouillon_titre">Review contact</string>
+    <string name="scan_brouillon_sous_titre">Edit fields before creating the contact or exporting VCF.</string>
+    <string name="scan_ocr_brut">Raw OCR text</string>
+    <string name="scan_creer_contact">Create contact</string>
+    <string name="scan_exporter_vcf">Export VCF</string>
+    <string name="scan_reprendre">Retake capture</string>
+    <string name="scan_retour">Back</string>
+    <string name="scan_champ_nom">Full name</string>
+    <string name="scan_champ_prenom">First name</string>
+    <string name="scan_champ_nom_famille">Last name</string>
+    <string name="scan_champ_societe">Company</string>
+    <string name="scan_champ_poste">Job title</string>
+    <string name="scan_champ_tel">Phone(s)</string>
+    <string name="scan_champ_email">Email(s)</string>
+    <string name="scan_champ_site">Website</string>
+    <string name="scan_champ_adresse">Address</string>
+    <string name="scan_champ_note">Note</string>
+    <string name="act_scanner_carte">📇 Scan a business card</string>
+    <string name="act_creer_contact">📇 Create a contact</string>
 </resources>

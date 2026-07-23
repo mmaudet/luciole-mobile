@@ -17,11 +17,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
@@ -150,5 +152,7 @@ fun actionIcon(key: String): ImageVector = when {
     key.contains("ouvrir") -> Icons.Outlined.GridView
     key.contains("traduction") || key.contains("traduire") -> Icons.Outlined.Translate
     key.contains("note") -> Icons.Outlined.EditNote
+    key.contains("creer_contact") -> Icons.Outlined.PersonAdd
+    key.contains("scanner") || key.contains("carte") -> Icons.Outlined.Badge
     else -> Icons.Outlined.AutoAwesome
 }

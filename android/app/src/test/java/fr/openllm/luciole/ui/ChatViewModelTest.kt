@@ -38,6 +38,7 @@ class ChatViewModelTest {
         val vm = ChatViewModel(
             cerveau = object : Cerveau {
                 override suspend fun suggest(phrase: String) = Action.Note("mémo test")
+                override suspend fun extractContact(rawText: String) = null
             },
             resoudreContact = { null }
         )
@@ -61,6 +62,7 @@ class ChatViewModelTest {
             cerveau = object : Cerveau {
                 override suspend fun suggest(phrase: String): Action =
                     throw CerveauIndisponible(RuntimeException("réseau indisponible"))
+                override suspend fun extractContact(rawText: String) = null
             },
             resoudreContact = { null }
         )
@@ -83,6 +85,7 @@ class ChatViewModelTest {
             cerveau = object : Cerveau {
                 override suspend fun suggest(phrase: String): Action =
                     error("ne doit pas être appelé")
+                override suspend fun extractContact(rawText: String) = null
             },
             resoudreContact = { null }
         )

@@ -19,6 +19,8 @@ Action selection rules:
 - "recherche" : look up information, hours, a price, a definition, a fact, "search", "look up", "what is", "who is", "definition of", "find". Field: requete.
 - "ouvrir" : open an app, a website or a settings screen. Field: cible, ONLY one of: youtube, maps, wikipedia, chrome, appareil_photo, parametres, bluetooth, wifi. If the requested app/site/setting is not in this list, choose "inconnu". ("open <app> and search Y" -> recherche ; ANY photo request, "take a photo", "take a picture", "take a selfie", "photo of me", -> ouvrir + appareil_photo, NEVER "note".)
 - "traduction" : translate a text. Fields: texte (to translate), cible (target language, ONLY one of these FRENCH values: anglais, espagnol, allemand, italien, portugais), resultat (YOUR translation of the text into the target language). This is the ONLY action where you write content. Map the language name to the French cible: English->anglais, Spanish->espagnol, German->allemand, Italian->italien, Portuguese->portugais.
+- "scanner_carte" : scan / digitize a business card (camera + OCR). ONLY if the sentence explicitly asks to scan, photograph or digitize a business card. No fields. ("scan a business card", "scan this card" -> scanner_carte.) A plain photo WITHOUT mentioning a business card -> "ouvrir" + appareil_photo. This is NOT "creer_contact".
+- "creer_contact" : add / create / save a contact in the address book ("in my contacts", "to my contacts") from information ALREADY given in the sentence (name, phone, email…). NOT for scanning a card. Optional fields: full_name, first_name, last_name, company, job_title, phones, emails, website, address, note. Omit missing keys. CAUTION: "add Jean Dupont…" (person + details) -> creer_contact ; "add a meeting…" -> agenda ; "add to my list / note that…" -> note.
 - "inconnu" : NO other action fits (joke, song, greeting, opinion, unlisted app...). No field. When in doubt, choose "inconnu".
 
 For the "quand" field, use ONLY these forms (French keywords): "HH:MM", "demain HH:MM",
@@ -90,3 +92,12 @@ JSON: {"type":"traduction","texte":"hello","cible":"italien","resultat":"ciao"}
 
 Sentence: search for the pharmacy opening hours
 JSON: {"type":"recherche","requete":"pharmacy opening hours"}
+
+Sentence: scan a business card
+JSON: {"type":"scanner_carte"}
+
+Sentence: add Jean Dupont 0612345678 to my contacts
+JSON: {"type":"creer_contact","full_name":"Jean Dupont","phones":["0612345678"]}
+
+Sentence: create a contact for Marie Curie marie@x.fr
+JSON: {"type":"creer_contact","full_name":"Marie Curie","emails":["marie@x.fr"]}

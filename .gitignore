@@ -3,6 +3,9 @@ docs/
 
 # Scratch superpowers (ledger SDD, briefs, paquets de revue, maquettes brainstorm) — local
 .superpowers/
+AGENTS.md
+.cursor/
+.omc/
 
 # Modèles (volumineux — jamais committés)
 *.gguf
