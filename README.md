@@ -2,25 +2,17 @@
 
 > Application Android de **démonstration** : le SLM souverain français **Luciole‑1B** tourne **100 % sur le téléphone**, hors‑ligne, et **pilote de vraies actions** de l'appareil à partir d'une phrase en langage naturel.
 
-[![Licence: AGPL v3](https://img.shields.io/badge/Licence-AGPL%20v3-blue.svg)](LICENSE)
-![Plateforme](https://img.shields.io/badge/Plateforme-Android%2012%2B-3DDC84?logo=android&logoColor=white)
-![Langage](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
-![100% on-device](https://img.shields.io/badge/100%25-on--device-success)
-[![Modèle](https://img.shields.io/badge/Mod%C3%A8le-Luciole--1B--Instruct%20(GGUF)-orange)](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF)
+[Licence: AGPL v3](LICENSE)
+Plateforme
+Langage
+100% on-device
+[Modèle](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF)
 
 > **Interface adaptative** : un format **téléphone** (barre d'onglets, une colonne) et un format **Pixel Fold déplié** (rail de navigation, volets côte à côte).
-
-<p align="center">
-  <img src="screenshots/onboarding.png" width="82%" alt="Écran d'accueil sur Pixel Fold déplié : la promesse à gauche, la preuve de souveraineté à droite"/>
-</p>
 
 ## ✨ L'idée en une phrase
 
 Vous dites **« mets un minuteur de 5 minutes »**, **« appelle Paul Maudet »** ou **« itinéraire vers la gare de Lyon »**. Un modèle de langage **d'un milliard de paramètres** tourne **sur le téléphone lui‑même** (aucun cloud, aucune donnée qui sort), transforme votre phrase en une **action structurée**, et l'application **déclenche l'intent Android natif** correspondant : composer un numéro, ouvrir Maps, créer une alarme.
-
-<p align="center">
-  <img src="screenshots/chat-fold.png" width="92%" alt="Pixel Fold déplié : rail de navigation, conversation et panneau de gabarits d'actions côte à côte"/>
-</p>
 
 ## ⚠️ Nature de la démonstration (à lire)
 
@@ -34,7 +26,7 @@ C'est une **démonstration destinée à l'expérimentation**, **pas un assistant
 
 ## 🤖 Le modèle : Luciole
 
-**[Luciole](https://huggingface.co/OpenLLM-France/Luciole-1B-Instruct-1.0)** est un modèle de langage **francophone et souverain** développé par **[OpenLLM‑France](https://github.com/OpenLLM-France)**. Cette démo utilise **`Luciole‑1B‑Instruct‑1.0`** (architecture Nemotron, environ 1 Md de paramètres), **quantifié en `Q4_K_M`** (≈ 969 Mo) pour tenir en mémoire et s'exécuter sur le téléphone via [`llama.cpp`](https://github.com/ggerganov/llama.cpp).
+**[Luciole](https://huggingface.co/OpenLLM-France/Luciole-1B-Instruct-1.0)** est un modèle de langage **francophone et souverain** développé par **[OpenLLM‑France](https://github.com/OpenLLM-France)**. Cette démo utilise `**Luciole‑1B‑Instruct‑1.0`** (architecture Nemotron, environ 1 Md de paramètres), **quantifié en `Q4_K_M`** (≈ 969 Mo) pour tenir en mémoire et s'exécuter sur le téléphone via `[llama.cpp](https://github.com/ggerganov/llama.cpp)`.
 
 ### 📥 Télécharger le modèle (GGUF prêt pour la démo)
 
@@ -42,9 +34,11 @@ Le GGUF quantifié utilisé par l'application est en téléchargement libre :
 
 **→ [huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF)**
 
-| Fichier | Quantification | Taille | Téléchargement |
-|---|---|---|---|
-| `Luciole-1B-Instruct-Q4_K_M.gguf` | Q4_K_M | ≈ 969 Mo | [⬇️ lien direct](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF/resolve/main/Luciole-1B-Instruct-Q4_K_M.gguf) |
+
+| Fichier                           | Quantification | Taille   | Téléchargement                                                                                                         |
+| --------------------------------- | -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Luciole-1B-Instruct-Q4_K_M.gguf` | Q4_K_M         | ≈ 969 Mo | [⬇️ lien direct](https://huggingface.co/mmaudet/Luciole-1B-Instruct-GGUF/resolve/main/Luciole-1B-Instruct-Q4_K_M.gguf) |
+
 
 ```bash
 # via la CLI Hugging Face
@@ -60,10 +54,6 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 - **Sécurité** : `ACTION_DIAL` (jamais d'appel automatique), aucun message envoyé automatiquement (l'éditeur s'ouvre, vous validez).
 - **Bilingue** 🇫🇷 / 🇬🇧.
 - **📡 Partage (démo sur n'importe quel réseau)** : un onglet qui **crée un hotspot WiFi depuis le téléphone** et affiche **deux QR codes** (rejoindre le WiFi, puis ouvrir la page web). Les invités scannent, se connectent et testent **sans rien taper** — idéal quand on ne maîtrise pas le réseau du lieu.
-
-<p align="center">
-  <img src="screenshots/aide-telephone.png" width="44%" alt="Format téléphone : la grille de gabarits d'actions et la carte d'aperçu (l'entité est pré-sélectionnée, on insère au bouton)"/>
-</p>
 
 ## 🧠 Comment ça marche : architecture « cerveau / mains »
 
@@ -92,10 +82,6 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 
 L'onglet **Statistiques** (« le téléphone, serveur du SLM ») montre en temps réel que c'est bien **le téléphone qui calcule** : tokens servis, débit en tokens par seconde, requêtes en cours, et un **histogramme** des tokens servis sur les 60 dernières secondes. Le cadenas le rappelle : **aucune donnée ne quitte le téléphone**.
 
-<p align="center">
-  <img src="screenshots/statistiques-fold.png" width="92%" alt="Tableau de bord (Fold déplié) : tokens servis, débit, histogramme avec axe des tokens/s, et l'impact du 1er prompt"/>
-</p>
-
 **L'impact du premier prompt sur la performance au démarrage.** À chaque requête, le modèle doit d'abord « lire » le **prompt système** : environ 1 300 tokens de règles et d'exemples qui cadrent les actions. La **toute première** requête après le démarrage du serveur paie ce coût en entier et reste lente (de l'ordre de 14 s sur le téléphone). Les requêtes suivantes **réutilisent le cache** de ce préfixe (le *KV cache* de `llama.cpp`) et retombent autour de **3 à 4 s**. Pour que l'utilisateur ne subisse jamais ce premier coût, l'application envoie un **pré‑chauffage silencieux** au lancement : une requête « à blanc » qui réchauffe le cache, afin que la première vraie demande soit déjà rapide. C'est ce que montre l'histogramme : une montée en charge initiale, puis un débit qui se stabilise.
 
 ## 📡 Partage : faire tester toute la salle, sur n'importe quel réseau
@@ -109,41 +95,45 @@ Chaque carte a un bouton **Copier** / **Partager**, et le SSID et le mot de pass
 
 ## 🔧 Détails techniques
 
-| | |
-|---|---|
-| **Application** | Kotlin, Jetpack Compose, Material 3, minSdk 31, JDK 21 |
-| **Inférence** | `llama.cpp` (`llama-server`) dans **Termux** sur le téléphone, modèle GGUF `Q4_K_M` |
-| **Contrainte de sortie** | Grammaire **GBNF** (`--grammar-file`), JSON d'action toujours valide |
-| **Contrat** | Prompt système et règles d'extraction (numéro, nom, **date**) re‑portés en Kotlin (parité testée avec la référence Python) |
-| **Statistiques** | Métriques Prometheus `--metrics` du serveur, lues chaque seconde |
-| **Robustesse** | timeout 60 s, **pré‑chauffage** du prompt au lancement, `configChanges` (survit au pliage du Pixel Fold), cleartext limité à `localhost` |
-| **Tests** | **85+** tests unitaires et Robolectric (modèle, parsing JSON, extraction, contacts, scan/OCR, VCF, mapping d'intents, i18n) |
-| **Scan carte** | CameraX + OpenCV + Tesseract4Android (100 % local, sans Google Play Services) ; structuration contact via `Cerveau.extractContact()` |
+
+|                          |                                                                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Application**          | Kotlin, Jetpack Compose, Material 3, minSdk 31, JDK 21                                                                                   |
+| **Inférence**            | `llama.cpp` (`llama-server`) dans **Termux** sur le téléphone, modèle GGUF `Q4_K_M`                                                      |
+| **Contrainte de sortie** | Grammaire **GBNF** (`--grammar-file`), JSON d'action toujours valide                                                                     |
+| **Contrat**              | Prompt système et règles d'extraction (numéro, nom, **date**) re‑portés en Kotlin (parité testée avec la référence Python)               |
+| **Statistiques**         | Métriques Prometheus `--metrics` du serveur, lues chaque seconde                                                                         |
+| **Robustesse**           | timeout 60 s, **pré‑chauffage** du prompt au lancement, `configChanges` (survit au pliage du Pixel Fold), cleartext limité à `localhost` |
+| **Tests**                | **85+** tests unitaires et Robolectric (modèle, parsing JSON, extraction, contacts, scan/OCR, VCF, mapping d'intents, i18n)              |
+| **Scan carte**           | CameraX + OpenCV + Tesseract4Android (100 % local, sans Google Play Services) ; structuration contact via `Cerveau.extractContact()`     |
+
 
 L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fold** : appel vers le Téléphone, itinéraire vers Maps, minuteur vers l'Horloge, agenda vers l'Agenda (avec l'heure), confirmés au logcat.
 
 ### Structure du dépôt
 
-| Dossier | Rôle |
-|---|---|
-| `android/` | **L'application native** (le cœur de cette démo) |
-| `server/` | Scripts de lancement du `llama-server` on‑device (Termux) |
-| `contract/` | La **grammaire GBNF**, le schéma des actions et le schéma `ContactCard` |
-| `web/` | Un client **web** (même design « République » que l'app) servi par le téléphone, pour faire tester depuis un navigateur |
-| `dispatcher/` | Le dispatcher Python de référence (preuve de concept initiale) |
+
+| Dossier       | Rôle                                                                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `android/`    | **L'application native** (le cœur de cette démo)                                                                        |
+| `server/`     | Scripts de lancement du `llama-server` on‑device (Termux)                                                               |
+| `contract/`   | La **grammaire GBNF**, le schéma des actions et le schéma `ContactCard`                                                 |
+| `web/`        | Un client **web** (même design « République » que l'app) servi par le téléphone, pour faire tester depuis un navigateur |
+| `dispatcher/` | Le dispatcher Python de référence (preuve de concept initiale)                                                          |
+
 
 ## 🚀 Lancer la démo
 
 1. **Télécharger le modèle** GGUF (voir la section ci‑dessus) dans `.models/`.
 2. **Sur le téléphone (Termux)** : lancer le serveur avec la grammaire et les métriques :
-   ```bash
+  ```bash
    ./server/run-server.sh        # llama-server --grammar-file contract/actions.gbnf --metrics --port 8080
-   ```
+  ```
 3. **Construire l'application** (depuis `android/`) :
-   ```bash
+  ```bash
    ./gradlew :app:assembleDebug
    adb install -r app/build/outputs/apk/debug/app-debug.apk
-   ```
+  ```
    Pour le scan OCR, copiez `fra.traineddata` et `eng.traineddata` dans `android/app/src/main/assets/tesseract/tessdata/` (voir le README dans ce dossier).
 4. Ouvrir **Luciole**, dire une phrase, regarder l'action se déclencher, et l'onglet **Statistiques** monter, **sans réseau**.
 
@@ -156,7 +146,7 @@ L'application a été **vérifiée en conditions réelles sur un Pixel 10 Pro Fo
 
 ## 📄 Licence
 
-Distribué sous **GNU Affero General Public License v3.0**, voir [`LICENSE`](LICENSE).
+Distribué sous **GNU Affero General Public License v3.0**, voir `[LICENSE](LICENSE)`.
 
 ## 🙏 Crédits
 
@@ -165,82 +155,23 @@ Distribué sous **GNU Affero General Public License v3.0**, voir [`LICENSE`](LIC
 
 > *Souveraineté numérique : un modèle français, sur votre téléphone, qui n'envoie rien à personne.* 🔦
 
-## Ajout reconnaissance de carter de visite vers Vcf 
+## Ajout — scan carte de visite → contact / VCF
 
-1. Préparer les modèles OCR (sur le PC, avant compilation)
-```
-cd /home/monsieurb/Documents/devel/luciole-mobile/android/app/src/main/assets/tesseract/tessdata
-curl -L -O https://github.com/tesseract-ocr/tessdata_fast/raw/main/fra.traineddata
-curl -L -O https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata
-```
-Sans ces fichiers, l’OCR échouera avec un message du type « Modèle OCR manquant ».
+### Ce qu’elle apporte
 
-2. Compiler et installer l’APK
-cd /home/monsieurb/Documents/devel/luciole-mobile/android
-./gradlew :app:assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-Vérifier que le téléphone est bien détecté : adb devices.
+- **Onglet Scan** : CameraX → redressement OpenCV → OCR Tesseract (FR/EN) → brouillon de contact.
+- **Structuration Luciole** : après l’OCR, Luciole-1B (inférence locale) propose les champs via l’action JSON `creer_contact` (grammaire `actions.gbnf` étendue). Heuristiques + regex (tél / e-mail / URL) en secours si le LLM est indisponible.
+- **Deux actions distinctes** :
+  - `scanner_carte` — ouvre le flux caméra (« scanne une carte de visite ») ;
+  - `creer_contact` — remplit le carnet depuis des infos déjà dans la phrase (« ajoute Jean Dupont 06… dans mes contacts ») ou depuis l’OCR.
+- **Export** : Créer le contact (écran Contacts prérempli, validation utilisateur) et partager un `**.vcf`**.
+- **Prompts** FR/EN mis à jour (`SystemPrompt`, `web/system_prompt*.txt`) + tests unitaires (OCR, merge, VCF, actions).
 
-3. Lancer Luciole-1B sur le téléphone (Termux)
-Le scan a deux étapes : OCR local (Tesseract) puis structuration (HTTP vers 127.0.0.1:8080). Le serveur doit tourner sur le téléphone, pas sur le PC.
+### Smoke test rapide
 
-Copier le dépôt + modèle GGUF sur le téléphone (ou cloner dans Termux).
-Dans Termux :
-cd ~/luciole-mobile   # adapter le chemin
-./server/run-server.sh
-Le script démarre le processus d’inférence local (`llama-server` dans Termux) sur le port 8080 avec la grammaire on-device (`actions.gbnf`). Cette grammaire autorise les actions chat **et** `creer_contact` (JSON carnet). Le scan enchaîne OCR local (Tesseract) puis structuration Luciole via HTTP vers `127.0.0.1:8080` (**localhost du téléphone**, pas de cloud). Les heuristiques OCR + regex restent un secours si le LLM est indisponible.
+1. Modèles OCR dans `android/app/src/main/assets/tesseract/tessdata/` (`fra.traineddata`, `eng.traineddata`) puis `./gradlew :app:assembleDebug` + `adb install`.
+2. Sur le téléphone : lancer l’inférence locale (`./server/run-server.sh` dans Termux) avec la grammaire à jour.
+3. Dans l’app : onglet **Scan** (ou chat « scanne une carte de visite ») → capturer → vérifier le brouillon → **Créer le contact** / **Exporter VCF**.
+4. Chat : « ajoute Jean Dupont 0612345678 dans mes contacts » → ouverture Contacts préremplie.
 
-Astuce démo : la 1ʳᵉ requête LLM est lente (~14 s). L’app pré-chauffe au lancement ; attendre quelques secondes avant le premier scan.
-
-4. Parcours de test dans l’app
-Option A — Onglet Scan
-Ouvrir Luciole
-Accepter la caméra quand demandé
-Aller à l’onglet Scan
-Cadrer une carte de visite, appuyer sur Capturer
-Attendre la progression : correction → OCR → structuration Luciole
-Vérifier le brouillon (champs + texte OCR brut)
-Tester Créer le contact (écran Contacts prérempli) et Exporter VCF
-Option B — Depuis le chat
-Dire : « scanne une carte de visite »
-Le flux Scan s’ouvre automatiquement
-Même enchaînement qu’en option A
-5. Ce qu’il faut valider
-Étape	Succès attendu
-Capture
-Aperçu caméra live
-Scan OpenCV
-Image redressée (moins d’inclinaison)
-OCR
-Texte brut visible dans le brouillon
-Luciole
-Champs nom / société / tel / email préremplis
-Contact
-App Contacts s’ouvre avec les champs remplis
-VCF
-Partage d’un fichier .vcf importable
-6. Dépannage rapide
-Symptôme	Cause probable	Action
-« Serveur injoignable » (chat)
-llama-server arrêté
-Relancer ./server/run-server.sh dans Termux
-« Modèle OCR manquant »
-traineddata absents de l’APK
-Recopier les fichiers, recompiler, réinstaller
-« OCR vide »
-Photo floue / mal cadrée
-Reprendre avec meilleure lumière, carte bien visible
-« Document non détecté »
-Contour non trouvé
-Recadrer ou utiliser une carte sur fond contrasté
-Structuration vide
-LLM indisponible ou OCR pauvre
-Vérifier Termux ; les tel/email regex restent via OCR
-Caméra refusée
-Permission
-Paramètres → Luciole → Autoriser la caméra
-Logs utiles :
-
-```
-adb logcat -s Luciole
-```
+Logs : `adb logcat -s Luciole`
