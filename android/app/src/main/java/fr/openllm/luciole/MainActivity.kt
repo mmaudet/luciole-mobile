@@ -126,6 +126,9 @@ class MainActivity : ComponentActivity() {
                             val sortie = messages[i].sortie
                             if (sortie is Sortie.Lancer) this@MainActivity.lancer(sortie.spec)
                             if (sortie == Sortie.OuvrirScanCarte) requestOpenScan = true
+                            if (sortie is Sortie.CreerContact) {
+                                startActivity(ContactInsertIntent.build(sortie.card))
+                            }
                         }
                         if (messages.isNotEmpty()) dernierIndex = messages.size - 1
                     }

@@ -69,6 +69,20 @@
     { "type": "object", "additionalProperties": false,
       "required": ["type"],
       "properties": {
-        "type": { "const": "scanner_carte" } } }
+        "type": { "const": "scanner_carte" } } },
+    { "type": "object", "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "creer_contact" },
+        "full_name": { "type": "string" },
+        "first_name": { "type": "string" },
+        "last_name": { "type": "string" },
+        "company": { "type": "string" },
+        "job_title": { "type": "string" },
+        "phones": { "type": "array", "items": { "type": "string" } },
+        "emails": { "type": "array", "items": { "type": "string" } },
+        "website": { "type": "string" },
+        "address": { "type": "string" },
+        "note": { "type": "string" } } }
   ]
 }

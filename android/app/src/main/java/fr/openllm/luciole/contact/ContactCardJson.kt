@@ -9,9 +9,17 @@ import kotlinx.serialization.json.jsonPrimitive
 object ContactCardJson {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
+    /** Types d'action Luciole qui ne sont pas un contact. */
+    private val ACTION_TYPES = setOf(
+        "alarme", "agenda", "message", "itineraire", "appel", "inconnu",
+        "minuteur", "note", "recherche", "ouvrir", "traduction", "scanner_carte",
+    )
+
     fun parse(raw: String): ContactCard? {
         val obj = runCatching { json.parseToJsonElement(raw.trim()) as? JsonObject }.getOrNull()
             ?: return null
+        val type = obj["type"]?.jsonPrimitive?.contentOrNull
+        if (type != null && type != "creer_contact" && type in ACTION_TYPES) return null
         fun s(k: String): String? = obj[k]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
         fun strings(k: String): List<String> =
             obj[k]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull?.takeIf { v -> v.isNotBlank() } }

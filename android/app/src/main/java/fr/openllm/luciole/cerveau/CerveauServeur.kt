@@ -92,8 +92,8 @@ class CerveauServeur(
                     .jsonObject["choices"]?.jsonArray?.get(0)
                     ?.jsonObject?.get("message")?.jsonObject?.get("content")
                     ?.jsonPrimitive?.content.orEmpty()
-                // Si le serveur est bridé par la grammaire d'actions, le JSON contact est invalide → null
-                // (les heuristiques prendront le relais dans ContactDraftMerge).
+                // Si la grammaire locale n'autorise pas encore creer_contact, le JSON est invalide → null
+                // (les heuristiques prennent le relais dans ContactDraftMerge).
                 ContactCardJson.parseFromLlm(content)
             }
         } catch (_: Exception) {

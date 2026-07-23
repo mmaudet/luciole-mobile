@@ -1,5 +1,7 @@
 package fr.openllm.luciole.model
 
+import fr.openllm.luciole.contact.ContactCard
+import fr.openllm.luciole.contact.ContactCardJson
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -30,6 +32,7 @@ object ActionJson {
                 .getOrNull()?.let { Action.Traduction(s("texte").orEmpty(), it, s("resultat").orEmpty()) }
                 ?: Action.Inconnu
             "scanner_carte" -> Action.ScannerCarte
+            "creer_contact" -> Action.CreerContact(ContactCardJson.parse(raw) ?: ContactCard())
             else -> Action.Inconnu
         }
     }

@@ -1,10 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Luciole ContactCard (GBNF cible)",
-  "description": "Pour un serveur llama.cpp dédié au contact (SANS actions.gbnf). Voir docs/plans/ocr-carte-visite-vcf.md.",
+  "title": "Luciole creer_contact (branche de actions.schema.json)",
+  "description": "Sortie autorisée par la grammaire on-device (actions.gbnf). Même forme que l'action creer_contact. Voir docs/plans/creer-contact-gbnf-on-device.md.",
   "type": "object",
   "additionalProperties": false,
+  "required": ["type"],
   "properties": {
+    "type": { "const": "creer_contact" },
     "full_name": { "type": "string" },
     "first_name": { "type": "string" },
     "last_name": { "type": "string" },

@@ -46,4 +46,16 @@ class ContactCardJsonTest {
         val c = ContactCardJson.parseFromLlm(raw)!!
         assertEquals("Marie Curie", c.fullName)
     }
+
+    @Test fun parseCreerContactAvecType() {
+        val c = ContactCardJson.parse(
+            """{"type":"creer_contact","full_name":"Jean Dupont","phones":["0612345678"]}""",
+        )!!
+        assertEquals("Jean Dupont", c.fullName)
+        assertEquals(listOf("0612345678"), c.phones)
+    }
+
+    @Test fun refuseActionAppel() {
+        assertNull(ContactCardJson.parse("""{"type":"appel","destinataire":"Paul"}"""))
+    }
 }

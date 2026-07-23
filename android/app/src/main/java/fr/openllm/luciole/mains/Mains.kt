@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import fr.openllm.luciole.R
+import fr.openllm.luciole.contact.ContactCard
 import fr.openllm.luciole.model.*
 
 data class IntentSpec(val action: String, val data: String? = null, val extras: Map<String, Any> = emptyMap())
@@ -15,6 +16,7 @@ sealed interface Sortie {
     data class Afficher(val type: AffichageType, val texte: String) : Sortie
     data class ContactIntrouvable(val nom: String) : Sortie
     data object OuvrirScanCarte : Sortie
+    data class CreerContact(val card: ContactCard) : Sortie
 }
 
 object Mains {
@@ -70,6 +72,7 @@ object Mains {
         is Action.Note -> Sortie.Afficher(AffichageType.NOTE, action.texte)
         is Action.Traduction -> Sortie.Afficher(AffichageType.TRADUCTION, action.resultat)
         Action.ScannerCarte -> Sortie.OuvrirScanCarte
+        is Action.CreerContact -> Sortie.CreerContact(action.card)
         Action.Inconnu -> Sortie.Afficher(AffichageType.INCONNU, "")
     }
 

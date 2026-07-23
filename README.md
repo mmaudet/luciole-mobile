@@ -28,7 +28,7 @@ C'est une **démonstration destinée à l'expérimentation**, **pas un assistant
 
 - **Luciole‑1B** est un **très petit modèle** (*SLM, Small Language Model*, environ 1 milliard de paramètres). À cette taille, et **sans phase complète d'instruction et d'alignement sur des préférences humaines**, un modèle a des **limites importantes** : il ne « sait pas tout », ne tient pas une conversation ouverte, et se trompe sur des demandes générales.
 - **Mais** c'est précisément cette petite taille qui lui permet de **fonctionner sur un mobile**. Le compromis assumé : ces SLM ne sont réellement exploitables que sur des **cas d'usage très ciblés et soigneusement cadrés**.
-- **C'est tout l'objet de cette démo** : montrer qu'on peut **inférer un modèle souverain directement sur un téléphone** et, malgré sa petite taille, en tirer un **cas d'usage précis et fiable**, ici **piloter un répertoire fini d'actions de l'appareil**. Le modèle se contente de **router** la phrase vers l'une de **11 actions**, via une **grammaire** qui *garantit* une sortie valide ; il n'improvise pas le format et n'invente pas d'action.
+- **C'est tout l'objet de cette démo** : montrer qu'on peut **inférer un modèle souverain directement sur un téléphone** et, malgré sa petite taille, en tirer un **cas d'usage précis et fiable**, ici **piloter un répertoire fini d'actions de l'appareil**. Le modèle se contente de **router** la phrase vers l'une de **12 actions**, via une **grammaire** qui *garantit* une sortie valide ; il n'improvise pas le format et n'invente pas d'action.
 
 > 👉 À utiliser pour **tester, expérimenter, démontrer**. Ce n'est pas un produit fini.
 
@@ -54,8 +54,8 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 ## 📱 Fonctionnalités
 
 - **Chat** : tapez (ou dictez) une phrase, obtenez une action. La **durée de traitement** s'affiche sur chaque réponse (« traité en 3,7 s »).
-- **11 actions** déclenchées par des **intents Android natifs** : ⏰ alarme, ⏱ minuteur, 📅 agenda (avec date et heure réelles), ✉️ message (e‑mail / SMS), 📞 **appel par numéro ou par nom** (résolu depuis vos contacts), 🗺 itinéraire, 🔍 recherche, 📲 ouvrir une app, 🔤 traduction, 📝 note, 📇 **scanner une carte de visite**, et un repli **« je ne sais pas »** assumé quand la demande sort du cadre.
-- **Scan carte de visite** : capture CameraX → correction OpenCV → OCR Tesseract local → **heuristiques + regex** pour remplir le `ContactCard` (tél / e-mail / nom / société / poste) → brouillon éditable → Contacts Android / `.vcf`. Luciole‑1B peut affiner la structuration **uniquement** si le serveur n’est pas bridé par `actions.gbnf`. **Luciole ne fait pas l’OCR image.**
+- **12 actions** déclenchées par des **intents Android natifs** : ⏰ alarme, ⏱ minuteur, 📅 agenda (avec date et heure réelles), ✉️ message (e‑mail / SMS), 📞 **appel par numéro ou par nom** (résolu depuis vos contacts), 🗺 itinéraire, 🔍 recherche, 📲 ouvrir une app, 🔤 traduction, 📝 note, 📇 **scanner une carte de visite**, 👤 **créer un contact** (champs structurés), et un repli **« je ne sais pas »** assumé quand la demande sort du cadre.
+- **Scan carte de visite** : capture CameraX → correction OpenCV → OCR Tesseract local → structuration Luciole on-device (`creer_contact` dans la grammaire GBNF) + heuristiques/regex en secours → brouillon éditable → Contacts Android / `.vcf`. **Luciole ne fait pas l’OCR image** ; `scanner_carte` ouvre le flux caméra, `creer_contact` remplit le carnet.
 - **Bouton Aide** : un panneau de **gabarits** (« itinéraire vers … ») où l'entité est **pré‑sélectionnée**, vous tapez directement par‑dessus.
 - **Sécurité** : `ACTION_DIAL` (jamais d'appel automatique), aucun message envoyé automatiquement (l'éditeur s'ouvre, vous validez).
 - **Bilingue** 🇫🇷 / 🇬🇧.
@@ -85,7 +85,7 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 ```
 
 - **🧠 Le cerveau** est une **interface enfichable**. Aujourd'hui : `CerveauServeur` (HTTP vers un serveur `llama.cpp` **local**, sur le téléphone, dans Termux). Prévu : `CerveauEmbarqué` (llama.cpp **dans l'APK**, via JNI, plus aucune dépendance externe).
-- **La sortie est contrainte par une grammaire GBNF** : le modèle **ne peut produire** qu'un des 11 types d'action, en JSON valide. Pas de parsing fragile, pas d'hallucination de format.
+- **La sortie est contrainte par une grammaire GBNF** : le modèle **ne peut produire** qu'un des types d'action (dont `creer_contact`), en JSON valide. Pas de parsing fragile, pas d'hallucination de format.
 - **✋ Les mains** traduisent l'action typée en intent Android natif. Comme l'app est au **premier plan**, les intents partent **sans restriction** (`BAL_ALLOW_VISIBLE_WINDOW`).
 
 ## 📊 Les statistiques : la preuve que tout est local
@@ -96,7 +96,7 @@ L'onglet **Statistiques** (« le téléphone, serveur du SLM ») montre en temps
   <img src="screenshots/statistiques-fold.png" width="92%" alt="Tableau de bord (Fold déplié) : tokens servis, débit, histogramme avec axe des tokens/s, et l'impact du 1er prompt"/>
 </p>
 
-**L'impact du premier prompt sur la performance au démarrage.** À chaque requête, le modèle doit d'abord « lire » le **prompt système** : environ 1 300 tokens de règles et d'exemples qui cadrent les 11 actions. La **toute première** requête après le démarrage du serveur paie ce coût en entier et reste lente (de l'ordre de 14 s sur le téléphone). Les requêtes suivantes **réutilisent le cache** de ce préfixe (le *KV cache* de `llama.cpp`) et retombent autour de **3 à 4 s**. Pour que l'utilisateur ne subisse jamais ce premier coût, l'application envoie un **pré‑chauffage silencieux** au lancement : une requête « à blanc » qui réchauffe le cache, afin que la première vraie demande soit déjà rapide. C'est ce que montre l'histogramme : une montée en charge initiale, puis un débit qui se stabilise.
+**L'impact du premier prompt sur la performance au démarrage.** À chaque requête, le modèle doit d'abord « lire » le **prompt système** : environ 1 300 tokens de règles et d'exemples qui cadrent les actions. La **toute première** requête après le démarrage du serveur paie ce coût en entier et reste lente (de l'ordre de 14 s sur le téléphone). Les requêtes suivantes **réutilisent le cache** de ce préfixe (le *KV cache* de `llama.cpp`) et retombent autour de **3 à 4 s**. Pour que l'utilisateur ne subisse jamais ce premier coût, l'application envoie un **pré‑chauffage silencieux** au lancement : une requête « à blanc » qui réchauffe le cache, afin que la première vraie demande soit déjà rapide. C'est ce que montre l'histogramme : une montée en charge initiale, puis un débit qui se stabilise.
 
 ## 📡 Partage : faire tester toute la salle, sur n'importe quel réseau
 
@@ -188,7 +188,7 @@ Copier le dépôt + modèle GGUF sur le téléphone (ou cloner dans Termux).
 Dans Termux :
 cd ~/luciole-mobile   # adapter le chemin
 ./server/run-server.sh
-Le script démarre llama-server sur le port 8080 avec la grammaire des **actions** (`actions.gbnf`). Cette grammaire s’applique à **toutes** les requêtes : `extractContact` ne peut donc pas produire un JSON `ContactCard` fiable sur ce même serveur. En pratique, le mapping des champs (nom, société, poste, adresse) repose sur des **heuristiques OCR** + regex (tél / e-mail / URL) ; Luciole reste un bonus si un serveur **sans** grammaire d’actions est disponible.
+Le script démarre le processus d’inférence local (`llama-server` dans Termux) sur le port 8080 avec la grammaire on-device (`actions.gbnf`). Cette grammaire autorise les actions chat **et** `creer_contact` (JSON carnet). Le scan enchaîne OCR local (Tesseract) puis structuration Luciole via HTTP vers `127.0.0.1:8080` (**localhost du téléphone**, pas de cloud). Les heuristiques OCR + regex restent un secours si le LLM est indisponible.
 
 Astuce démo : la 1ʳᵉ requête LLM est lente (~14 s). L’app pré-chauffe au lancement ; attendre quelques secondes avant le premier scan.
 

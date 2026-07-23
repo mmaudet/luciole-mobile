@@ -120,4 +120,5 @@
     <string name="scan_champ_adresse">Address</string>
     <string name="scan_champ_note">Note</string>
     <string name="act_scanner_carte">📇 Scan a business card</string>
+    <string name="act_creer_contact">📇 Create a contact</string>
 </resources>

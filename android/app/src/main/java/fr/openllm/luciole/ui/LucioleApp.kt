@@ -143,6 +143,7 @@ fun LucioleApp(
             onEffacer = { chatVm.effacer() },
             onOuvrirAide = if (withAideButton) ({ dest = AIDE }) else null,
             onOuvrirScanCarte = { showScan = true },
+            onCreerContact = onCreateContact,
             modifier = mod,
         )
     }
