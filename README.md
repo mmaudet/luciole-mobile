@@ -55,7 +55,7 @@ hf download mmaudet/Luciole-1B-Instruct-GGUF Luciole-1B-Instruct-Q4_K_M.gguf --l
 
 - **Chat** : tapez (ou dictez) une phrase, obtenez une action. La **durée de traitement** s'affiche sur chaque réponse (« traité en 3,7 s »).
 - **11 actions** déclenchées par des **intents Android natifs** : ⏰ alarme, ⏱ minuteur, 📅 agenda (avec date et heure réelles), ✉️ message (e‑mail / SMS), 📞 **appel par numéro ou par nom** (résolu depuis vos contacts), 🗺 itinéraire, 🔍 recherche, 📲 ouvrir une app, 🔤 traduction, 📝 note, 📇 **scanner une carte de visite**, et un repli **« je ne sais pas »** assumé quand la demande sort du cadre.
-- **Scan carte de visite** : capture CameraX → correction OpenCV → OCR Tesseract local → structuration `ContactCard` par Luciole‑1B → brouillon éditable → insertion Contacts Android ou export `.vcf`. **Luciole‑1B ne fait pas l'OCR image seul** : il structure le texte produit par Tesseract.
+- **Scan carte de visite** : capture CameraX → correction OpenCV → OCR Tesseract local → **heuristiques + regex** pour remplir le `ContactCard` (tél / e-mail / nom / société / poste) → brouillon éditable → Contacts Android / `.vcf`. Luciole‑1B peut affiner la structuration **uniquement** si le serveur n’est pas bridé par `actions.gbnf`. **Luciole ne fait pas l’OCR image.**
 - **Bouton Aide** : un panneau de **gabarits** (« itinéraire vers … ») où l'entité est **pré‑sélectionnée**, vous tapez directement par‑dessus.
 - **Sécurité** : `ACTION_DIAL` (jamais d'appel automatique), aucun message envoyé automatiquement (l'éditeur s'ouvre, vous validez).
 - **Bilingue** 🇫🇷 / 🇬🇧.
@@ -188,7 +188,7 @@ Copier le dépôt + modèle GGUF sur le téléphone (ou cloner dans Termux).
 Dans Termux :
 cd ~/luciole-mobile   # adapter le chemin
 ./server/run-server.sh
-Le script démarre llama-server sur le port 8080 avec la grammaire des actions. La structuration contact (extractContact) utilise le même serveur, sans grammaire GBNF.
+Le script démarre llama-server sur le port 8080 avec la grammaire des **actions** (`actions.gbnf`). Cette grammaire s’applique à **toutes** les requêtes : `extractContact` ne peut donc pas produire un JSON `ContactCard` fiable sur ce même serveur. En pratique, le mapping des champs (nom, société, poste, adresse) repose sur des **heuristiques OCR** + regex (tél / e-mail / URL) ; Luciole reste un bonus si un serveur **sans** grammaire d’actions est disponible.
 
 Astuce démo : la 1ʳᵉ requête LLM est lente (~14 s). L’app pré-chauffe au lancement ; attendre quelques secondes avant le premier scan.
 
